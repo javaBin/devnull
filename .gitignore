@@ -14,4 +14,5 @@ hs_err_pid*
 # Custom
 *.iml
 .idea
-*~
+*~ 	
+target

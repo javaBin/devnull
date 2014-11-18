@@ -1,0 +1,9 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 1337
+
+logging:
+  level: DEBUG
+  appenders:
+    - type: console
