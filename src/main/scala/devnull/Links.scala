@@ -10,13 +10,7 @@ object Links {
   val Sessions = Event / "sessions"
   val Session = Sessions / 'sessionId
 
-  val Feedbacks = Session
+  val Feedbacks = Session / "feedbacks"
   val Feedback = Feedbacks / 'feedbackId
-
-  val Achievements = Event / "achievements"
-  val Achievement = Achievements / 'achievementId
-
-  val Users = "users"
-  val User = 'userId
 
 }
