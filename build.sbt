@@ -30,9 +30,23 @@ libraryDependencies ++= joda ++ unfiltered ++ Seq(
   "org.specs2" %% "specs2" % "2.4.2" % "test"
 )
 
-
 pomIncludeRepository := {
   x => false
 }
 
 crossPaths := false
+
+aetherPublishBothSettings
+
+appAssemblerSettings
+
+appOutput in App := target.value / "appmgr" / "root"
+
+appmgrSettings
+
+appmgrBuild <<= appmgrBuild.dependsOn(appAssemble)
+
+aetherArtifact <<= (aetherArtifact, appmgrBuild) map { (art, build) =>
+  art.attach(build, "appmgr", "zip")
+}
+
