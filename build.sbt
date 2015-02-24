@@ -16,7 +16,8 @@ val unfiltered = Seq(
   "net.databinder" %% "unfiltered-directives" % unfilteredVersion,
   "net.databinder" %% "unfiltered-jetty" % unfilteredVersion,
   "com.jteigen" %% "linx" % "0.2",
-  "org.slf4j" % "slf4j-api" % "1.7.7"
+  "org.slf4j" % "slf4j-api" % "1.7.7",
+  "org.slf4j" % "slf4j-simple" % "1.7.7"
 )
 
 libraryDependencies ++= joda ++ unfiltered ++ Seq(
@@ -50,3 +51,4 @@ aetherArtifact <<= (aetherArtifact, appmgrBuild) map { (art, build) =>
   art.attach(build, "appmgr", "zip")
 }
 
+Revolver.settings
