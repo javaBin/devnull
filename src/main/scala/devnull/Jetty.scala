@@ -18,7 +18,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
   override def onStart(cfg: AppConfig): AppReference = {
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
       _.plan(Resources())
-    }
+    }.requestLogging("access.log")
 
     server.underlying.setSendDateHeader(true)
     server.run(_ => println("Running server at " + cfg.httpPort))

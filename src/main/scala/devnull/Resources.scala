@@ -27,7 +27,7 @@ class Resources extends Plan {
     val get = for {
       _ <- GET
     } yield {
-      JsonContent ~> ResponseString( """{ "ping":"ok"} """)
+      JsonContent ~> ResponseString( """{"ping":"ok"} """)
     }
     get
   }
@@ -38,12 +38,15 @@ class Resources extends Plan {
     } yield template.right.map(fromTemplate)
   }
 
-  def toFeedback(template: Template, eventId: String, sessionId: String): Feedback = {
-    val overall = template.getPropertyValue("overall").map(_.value.toString.toInt).get
-    val relevance = template.getPropertyValue("relevance").map(_.value.toString.toInt).get
-    val content = template.getPropertyValue("content").map(_.value.toString.toInt).get
-    val quality = template.getPropertyValue("quality").map(_.value.toString.toInt).get
-    Feedback(eventId, sessionId, overall, relevance, content, quality)
+  def toFeedback(template: Template, eventId: String, sessionId: String): Option[Feedback] = {
+    for {
+      overall <- template.getPropertyValue("overall").map(_.value.toString.toInt)
+      relevance <- template.getPropertyValue("relevance").map(_.value.toString.toInt)
+      content <- template.getPropertyValue("content").map(_.value.toString.toInt)
+      quality <- template.getPropertyValue("quality").map(_.value.toString.toInt)
+    } yield {
+      Feedback(eventId, sessionId, overall, relevance, content, quality)
+    }
   }
 
   def contentType(ct: String) = commit(when {
@@ -59,17 +62,18 @@ class Resources extends Plan {
       // _ <- contentType("application/vnd.collection+json")
       _ <- contentType("application/json")
       parsed <- withTemplate(t => toFeedback(t, eventId, sessionId))
-      feedback <- parsed
+      feedback <- fromEither(parsed)
+      f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
-      println(s"POST => $feedback ")
-      Accepted // todo return a feedback id.
+        println(s"POST => $f ")
+        Accepted // todo return a feedback id.
     }
     post
   }
 
-  implicit def fromEither[T](either: Either[Throwable, T]): Directive[HttpServletRequest, ResponseFunction[Any], T] = {
+  def fromEither[T](either: Either[Throwable, T]): Directive[HttpServletRequest, ResponseFunction[Any], T] = {
     either.fold(
-      ex => failure(InternalServerError ~> ResponseString(ex.getMessage)),
+      ex => failure(BadRequest ~> ResponseString(ex.getMessage)),
       a => success(a)
     )
   }
@@ -78,8 +82,8 @@ class Resources extends Plan {
 
   case class Mapping[X](from: HttpRequest[HttpServletRequest] => X) {
     def apply(intent: PartialFunction[X, Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]]): unfiltered.Cycle.Intent[HttpServletRequest, Any] = Directive.Intent {
-        case req if intent.isDefinedAt(from(req)) => intent(from(req))
-      }
+      case req if intent.isDefinedAt(from(req)) => intent(from(req))
+    }
   }
 
 }
