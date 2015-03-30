@@ -4,6 +4,10 @@ scalaVersion := "2.11.4"
 
 scalacOptions := Seq("-deprecation", "-feature")
 
+resolvers ++= Seq(
+  "tpolecat" at "http://dl.bintray.com/tpolecat/maven",
+  "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
+)
 
 val joda = Seq(
   "joda-time" % "joda-time" % "2.2",
@@ -20,8 +24,13 @@ val unfiltered = Seq(
   "org.slf4j" % "slf4j-api" % "1.7.7"
 )
 
+lazy val doobieVersion = "0.2.1"
+
 val database = Seq(
-  "org.flywaydb"   %  "flyway-core"               % "3.2.1"
+  "org.flywaydb"   %  "flyway-core"               % "3.2.1",
+  "org.tpolecat"   %% "doobie-core"               % doobieVersion          withSources(),
+  "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion          withSources(),
+  "org.tpolecat"   %% "doobie-contrib-specs2"     % doobieVersion % "test" withSources()
 )
 
 libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
