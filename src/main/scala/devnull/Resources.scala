@@ -1,7 +1,9 @@
 package devnull
 
+import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
+import devnull.storage.{Feedback, FeedbackRepository}
 import linx.Root
 import net.hamnaberg.json.collection.{NativeJsonCollectionParser, Template}
 import unfiltered.directives.Directives._
@@ -14,7 +16,7 @@ import unfiltered.response._
 
 import scala.language.implicitConversions
 
-class Resources extends Plan {
+class Resources(val feedbackRepository: FeedbackRepository) extends Plan {
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
   override def intent: Intent = Intent {
@@ -45,16 +47,13 @@ class Resources extends Plan {
       content <- template.getPropertyValue("content").map(_.value.toString.toInt)
       quality <- template.getPropertyValue("quality").map(_.value.toString.toInt)
     } yield {
-      Feedback(eventId, sessionId, overall, relevance, content, quality)
+      Feedback(None, null, "http", UUID.fromString(sessionId), overall, Some(relevance), Some(content), Some(quality))
     }
   }
 
   def contentType(ct: String) = commit(when {
     case RequestContentType(`ct`) => ct
   }.orElse(UnsupportedMediaType))
-
-
-  case class Feedback(eventId: String, sessionId: String, overall: Int, relevance: Int, content: Int, quality: Int)
 
   def handleFeedbacks(eventId: String, sessionId: String): ResponseDirective = {
     val post = for {
@@ -66,6 +65,7 @@ class Resources extends Plan {
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
         println(s"POST => $f ")
+        feedbackRepository.insertFeedback(f)
         Accepted // todo return a feedback id.
     }
     post
@@ -90,6 +90,6 @@ class Resources extends Plan {
 
 object Resources {
 
-  def apply() = new Resources()
+  def apply(feedbackRepository: FeedbackRepository) = new Resources(feedbackRepository)
 
 }

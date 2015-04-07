@@ -10,12 +10,16 @@ class FeedbackRepository(xa: Transactor[Task]) {
 
   val uuidType = UuidType
 
-  def insertFeedback(fb: Feedback): Boolean = {
+  case class FeedbackResponse(id: Int)
+
+  def insertFeedback(fb: Feedback): Option[FeedbackResponse] = {
     val insertFeedback = sql"""INSERT INTO feedback (created, source, session_id,
           rating_overall, rating_relevance, rating_content, rating_quality)
       VALUES (current_timestamp, ${fb.source}, ${fb.sessionId},
        ${fb.ratingOverall}, ${fb.ratingRelevance}, ${fb.ratingContent}, ${fb.ratingQuality})"""
-    insertFeedback.update.run.transact(xa).attemptRun.isLeft
+    val response: FeedbackResponse = insertFeedback.update.withUniqueGeneratedKeys[FeedbackResponse]("id").transact(xa).run
+    println(response)
+    Some(response)
   }
 
   def selectFeedbacks(): List[Feedback] = {
