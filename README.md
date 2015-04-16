@@ -6,6 +6,26 @@ Setup
 * createdb devnull
 * sbt run
 
+Running Tests
+=============
+
+Run unit test
+
+````
+sbt test
+````
+
+Test that is tagged as database test. Require that you have a postgres database
+
+````
+sbt db:test
+````
+
+Unit test, database test and test that is tagged as slow.
+
+````
+sbt all:test
+````
 
 Examples
 ========

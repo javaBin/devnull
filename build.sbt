@@ -1,10 +1,34 @@
-organization := "no.java.devnull"
+val commonSettings = Seq(
+  organization := "no.java.devnull",
+  scalaVersion := "2.11.4",
+  scalacOptions := Seq("-deprecation", "-feature")
+)
 
-scalaVersion := "2.11.4"
+lazy val specs2core = "org.specs2" %% "specs2-core" % "2.4.14"
+lazy val AllTests = config("all") extend Test
+lazy val DbTests = config("db") extend Test
+def testArg(key: String, value: String ) = {
+  Tests.Argument(TestFrameworks.ScalaTest, key, value)
+}
+lazy val root = (project in file(".")).
+  configs(AllTests, DbTests).
+  settings(commonSettings: _*).
+  settings(inConfig(AllTests)(Defaults.testTasks): _*).
+  settings(inConfig(DbTests)(Defaults.testTasks): _*).
+  settings(
+    libraryDependencies += specs2core % AllTests,
+    testOptions in Test     := Seq(testArg("-l", "devnull.tag.db"), testArg( "-l", "devnull.tag.slow")),
+    testOptions in DbTests  := Seq(testArg("-n", "devnull.tag.db")),
+    testOptions in AllTests := Seq()
+    /*
+    Arguments: http://www.scalatest.org/user_guide/using_the_runner
+    -l   exclude tag
+    -n   include tag
+    -w   package with sub packages
+    */
+  )
 
-scalacOptions := Seq("-deprecation", "-feature")
-
-resolvers ++= Seq(
+ resolvers ++= Seq(
   "tpolecat" at "http://dl.bintray.com/tpolecat/maven",
   "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
 )
@@ -42,7 +66,7 @@ libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
   "com.sksamuel.scrimage" %% "scrimage-core" % "1.4.2",
   "org.jsoup" % "jsoup" % "1.7.2",
   "commons-io" % "commons-io" % "2.3",
-  "org.specs2" %% "specs2" % "2.4.2" % "test"
+  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
 )
 
 pomIncludeRepository := {
