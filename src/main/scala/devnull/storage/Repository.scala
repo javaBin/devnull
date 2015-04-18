@@ -1,42 +1,62 @@
 package devnull.storage
 
 import doobie.contrib.postgresql.pgtypes._
+import doobie.hi
 import doobie.imports._
-import doobie.util.transactor.{DriverManagerTransactor, Transactor}
+import doobie.util.transactor.DriverManagerTransactor
 
 import scalaz.concurrent.Task
 
-class FeedbackRepository(xa: Transactor[Task]) {
+case class FeedbackResponse(id: Int)
+
+class FeedbackRepository {
 
   val uuidType = UuidType
 
-  case class FeedbackResponse(id: Int)
+  object Queries {
+    def insert(fb: Feedback): Update0 = {
+      sql"""
+       INSERT INTO feedback (
+           created,
+           source,
+           session_id,
+           rating_overall,
+           rating_relevance,
+           rating_content,
+           rating_quality
+       ) VALUES (
+           current_timestamp,
+           ${fb.source},
+           ${fb.sessionId},
+           ${fb.ratingOverall},
+           ${fb.ratingRelevance},
+           ${fb.ratingContent},
+           ${fb.ratingQuality}
+       )""".update
+    }
 
-  def insertFeedback(fb: Feedback): Option[FeedbackResponse] = {
-    val insertFeedback = sql"""INSERT INTO feedback (created, source, session_id,
-          rating_overall, rating_relevance, rating_content, rating_quality)
-      VALUES (current_timestamp, ${fb.source}, ${fb.sessionId},
-       ${fb.ratingOverall}, ${fb.ratingRelevance}, ${fb.ratingContent}, ${fb.ratingQuality})"""
-    val response: FeedbackResponse = insertFeedback.update.withUniqueGeneratedKeys[FeedbackResponse]("id").transact(xa).run
-    println(response)
-    Some(response)
+    def selectAllFeedbacks:Query0[Feedback]= {
+      sql"""
+       SELECT
+           id,
+           created,
+           source,
+           session_id,
+           rating_overall,
+           rating_relevance,
+           rating_content,
+           rating_quality
+       FROM feedback"""
+        .query[(Feedback)]
+    }
+
+  }
+  def insertFeedback(fb: Feedback): hi.ConnectionIO[FeedbackResponse] = {
+    Queries.insert(fb).withUniqueGeneratedKeys[FeedbackResponse]("id")
   }
 
-  def selectFeedbacks(): List[Feedback] = {
-    sql"""
-                   SELECT
-                    id,
-                    created,
-                    source,
-                    session_id,
-                    rating_overall,
-                    rating_relevance,
-                    rating_content,
-                    rating_quality
-                   FROM feedback""".query[(Feedback)]
-      .list
-      .transact(xa)
-      .run
+  def selectFeedbacks(): hi.ConnectionIO[List[Feedback]] = {
+    Queries.selectAllFeedbacks.list
   }
 }
 

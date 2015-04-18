@@ -21,7 +21,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
   override def onStart(cfg: AppConfig): AppReference = {
     val xa = DriverManagerTransactor[Task](cfg.databaseConfig.driver, cfg.databaseConfig.connectionUrl, cfg.databaseConfig.username, cfg.databaseConfig.password)
 
-    val repository: FeedbackRepository = new FeedbackRepository(xa)
+    val repository: FeedbackRepository = new FeedbackRepository()
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
       _.plan(Resources(repository))
