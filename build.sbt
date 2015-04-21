@@ -4,19 +4,16 @@ val commonSettings = Seq(
   scalacOptions := Seq("-deprecation", "-feature")
 )
 
-lazy val specs2core = "org.specs2" %% "specs2-core" % "2.4.14"
 lazy val AllTests = config("all") extend Test
 lazy val DbTests = config("db") extend Test
-def testArg(key: String, value: String ) = {
-  Tests.Argument(TestFrameworks.ScalaTest, key, value)
-}
+def testArg(key: String, value: String ) = Tests.Argument(TestFrameworks.ScalaTest, key, value)
+
 lazy val root = (project in file(".")).
   configs(AllTests, DbTests).
   settings(commonSettings: _*).
   settings(inConfig(AllTests)(Defaults.testTasks): _*).
   settings(inConfig(DbTests)(Defaults.testTasks): _*).
   settings(
-    libraryDependencies += specs2core % AllTests,
     testOptions in Test     := Seq(testArg("-l", "devnull.tag.db"), testArg( "-l", "devnull.tag.slow")),
     testOptions in DbTests  := Seq(testArg("-n", "devnull.tag.db")),
     testOptions in AllTests := Seq()
@@ -41,12 +38,12 @@ val joda = Seq(
 lazy val unfilteredVersion = "0.8.3"
 
 val unfiltered = Seq(
-  "net.databinder" %% "unfiltered-filter" % unfilteredVersion,
+  "net.databinder" %% "unfiltered-filter"     % unfilteredVersion,
   "net.databinder" %% "unfiltered-directives" % unfilteredVersion,
-  "net.databinder" %% "unfiltered-jetty" % unfilteredVersion,
-  "com.jteigen" %% "linx" % "0.2",
-  "org.slf4j" % "slf4j-api" % "1.7.7",
-  "org.slf4j" % "slf4j-simple" % "1.7.7"
+  "net.databinder" %% "unfiltered-jetty"      % unfilteredVersion,
+  "com.jteigen"    %% "linx"                  % "0.2",
+  "org.slf4j"      %  "slf4j-api"             % "1.7.7",
+  "org.slf4j"      %  "slf4j-simple"          % "1.7.7"
 )
 
 lazy val doobieVersion = "0.2.1"
@@ -54,19 +51,18 @@ lazy val doobieVersion = "0.2.1"
 val database = Seq(
   "org.flywaydb"   %  "flyway-core"               % "3.2.1",
   "org.tpolecat"   %% "doobie-core"               % doobieVersion          withSources(),
-  "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion          withSources(),
-  "org.tpolecat"   %% "doobie-contrib-specs2"     % doobieVersion % "test" withSources()
+  "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion          withSources()
 )
 
 libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
-  "org.ini4j" % "ini4j" % "0.5.2",
-  "org.constretto" %% "constretto-scala" % "1.1",
-  "net.hamnaberg.rest" %% "scala-json-collection" % "2.3",
-  "com.andersen-gott" %% "scravatar" % "1.0.3",
-  "com.sksamuel.scrimage" %% "scrimage-core" % "1.4.2",
-  "org.jsoup" % "jsoup" % "1.7.2",
-  "commons-io" % "commons-io" % "2.3",
-  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
+  "org.ini4j"              %  "ini4j"                 % "0.5.2",
+  "org.constretto"         %% "constretto-scala"      % "1.1",
+  "net.hamnaberg.rest"     %% "scala-json-collection" % "2.3",
+  "com.andersen-gott"      %% "scravatar"             % "1.0.3",
+  "com.sksamuel.scrimage"  %% "scrimage-core"         % "1.4.2",
+  "org.jsoup"              %  "jsoup"                 % "1.7.2",
+  "commons-io"             %  "commons-io"            % "2.3",
+  "org.scalatest"          %  "scalatest_2.11"        % "2.2.4"   % "test"
 )
 
 pomIncludeRepository := {
