@@ -12,7 +12,7 @@ class FeedbackRepositoryAnalysisSpec extends FunSpec with Matchers with DoobieAn
   implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)
   val repo: FeedbackRepository = new FeedbackRepository()
 
-  it("feedback query must match types in the database", DatabaseTag){
+  it("feedback query must match types in the database", DatabaseTag) {
     val query: Query0[Feedback] = repo.Queries.selectAllFeedbacks
     query should matchDatabaseSchemaTypesQuery[Feedback]
   }

@@ -11,13 +11,15 @@ import scalaz.{-\/, \/-}
 
 trait DoobieAnalysisMatcher {
 
-  def matchDatabaseSchemaTypesQuery[A]()(implicit transactor: Transactor[Task]) = new DatabaseTypeMatcher[Query0[A]]()(transactor) {
-    override def analysis(a: Query0[A]): ConnectionIO[Analysis] = a.analysis
-  }
+  def matchDatabaseSchemaTypesQuery[A]()(implicit transactor: Transactor[Task]) =
+    new DatabaseTypeMatcher[Query0[A]]()(transactor) {
+      override def analysis(a: Query0[A]): ConnectionIO[Analysis] = a.analysis
+    }
 
-  def matchDatabaseSchemaTypesUpdate()(implicit transactor: Transactor[Task]) = new DatabaseTypeMatcher[Update0]()(transactor) {
-    override def analysis(a: Update0): ConnectionIO[Analysis] = a.analysis
-  }
+  def matchDatabaseSchemaTypesUpdate()(implicit transactor: Transactor[Task]) =
+    new DatabaseTypeMatcher[Update0]()(transactor) {
+      override def analysis(a: Update0): ConnectionIO[Analysis] = a.analysis
+    }
 
   abstract class DatabaseTypeMatcher[A]()(implicit transactor: Transactor[Task]) extends Matcher[A] {
 
