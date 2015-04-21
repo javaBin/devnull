@@ -1,9 +1,8 @@
 package devnull
 
-import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
-import devnull.storage.{Feedback, FeedbackRepository}
+import devnull.storage.FeedbackRepository
 import linx.Root
 import net.hamnaberg.json.collection.{NativeJsonCollectionParser, Template}
 import unfiltered.directives.Directives._
@@ -40,17 +39,6 @@ class Resources(val feedbackRepository: FeedbackRepository) extends Plan {
     } yield template.right.map(fromTemplate)
   }
 
-  def toFeedback(template: Template, eventId: String, sessionId: String): Option[Feedback] = {
-    for {
-      overall <- template.getPropertyValue("overall").map(_.value.toString.toShort)
-      relevance <- template.getPropertyValue("relevance").map(_.value.toString.toShort)
-      content <- template.getPropertyValue("content").map(_.value.toString.toShort)
-      quality <- template.getPropertyValue("quality").map(_.value.toString.toShort)
-    } yield {
-      Feedback(null, null, "http", UUID.fromString(sessionId), overall, Some(relevance), Some(content), Some(quality))
-    }
-  }
-
   def contentType(ct: String) = commit(when {
     case RequestContentType(`ct`) => ct
   }.orElse(UnsupportedMediaType))
@@ -60,7 +48,7 @@ class Resources(val feedbackRepository: FeedbackRepository) extends Plan {
       _ <- POST
       // _ <- contentType("application/vnd.collection+json")
       _ <- contentType("application/json")
-      parsed <- withTemplate(t => toFeedback(t, eventId, sessionId))
+      parsed <- withTemplate(t => JsonCollectionConverter.toFeedback(t, eventId, sessionId))
       feedback <- fromEither(parsed)
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {

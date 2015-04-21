@@ -26,10 +26,10 @@ class FeedbackRepository {
            current_timestamp,
            ${fb.source},
            ${fb.sessionId},
-           ${fb.ratingOverall},
-           ${fb.ratingRelevance},
-           ${fb.ratingContent},
-           ${fb.ratingQuality}
+           ${fb.rating.overall},
+           ${fb.rating.relevance},
+           ${fb.rating.content},
+           ${fb.rating.quality}
        )""".update
     }
 
