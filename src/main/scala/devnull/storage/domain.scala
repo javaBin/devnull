@@ -1,15 +1,18 @@
 package devnull.storage
 
-import java.util.{Date, UUID}
+import java.sql.Timestamp
+import java.util.UUID
 
-case class Feedback(id: Option[Int],
-                    created: Date,
+
+case class FeedbackId(id: Int)
+case class Feedback(id: FeedbackId,
+                    created: Timestamp,
                     source: String,
                     sessionId: UUID,
-                    ratingOverall: Int,
-                    ratingRelevance: Option[Int],
-                    ratingContent: Option[Int],
-                    ratingQuality: Option[Int])
+                    ratingOverall: Short,
+                    ratingRelevance: Option[Short],
+                    ratingContent: Option[Short],
+                    ratingQuality: Option[Short])
 
 case class DatabaseConfig(driver: String = "org.postgresql.Driver",
                           connectionUrl: String = "jdbc:postgresql:devnull",

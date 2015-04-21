@@ -7,8 +7,6 @@ import doobie.util.transactor.DriverManagerTransactor
 
 import scalaz.concurrent.Task
 
-case class FeedbackResponse(id: Int)
-
 class FeedbackRepository {
 
   val uuidType = UuidType
@@ -35,7 +33,7 @@ class FeedbackRepository {
        )""".update
     }
 
-    def selectAllFeedbacks:Query0[Feedback]= {
+    def selectAllFeedbacks: Query0[Feedback] = {
       sql"""
        SELECT
            id,
@@ -51,8 +49,9 @@ class FeedbackRepository {
     }
 
   }
-  def insertFeedback(fb: Feedback): hi.ConnectionIO[FeedbackResponse] = {
-    Queries.insert(fb).withUniqueGeneratedKeys[FeedbackResponse]("id")
+
+  def insertFeedback(fb: Feedback): hi.ConnectionIO[FeedbackId] = {
+    Queries.insert(fb).withUniqueGeneratedKeys[FeedbackId]("id")
   }
 
   def selectFeedbacks(): hi.ConnectionIO[List[Feedback]] = {

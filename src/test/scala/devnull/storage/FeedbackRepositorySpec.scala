@@ -1,7 +1,5 @@
 package devnull.storage
 
-import java.util.{Date, UUID}
-
 import devnull.TestTags.DatabaseTag
 import doobie.imports._
 import doobie.util.transactor.DriverManagerTransactor
@@ -19,20 +17,16 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers {
     sql"delete from feedback".update.run.transact(xa).run
   }
 
-  def createFeedback(): Feedback = {
-    Feedback(None, new Date(), "spec", UUID.randomUUID(), 1, Some(1),Some(1),Some(1))
-  }
-
   describe("Postgres database") {
 
     it("should insert a feedback", DatabaseTag) {
-      val response: FeedbackResponse = repo.insertFeedback(createFeedback()).transact(xa).run
+      val response: FeedbackId = repo.insertFeedback(FeedbackTestData.createFeedback()).transact(xa).run
 
       response.id should be > 0
     }
 
     it ("should query an inserted feedback", DatabaseTag) {
-      repo.insertFeedback(createFeedback()).transact(xa).run
+      repo.insertFeedback(FeedbackTestData.createFeedback()).transact(xa).run
 
       val feedbacks: List[Feedback] = repo.selectFeedbacks().transact(xa).run
 

@@ -42,12 +42,12 @@ class Resources(val feedbackRepository: FeedbackRepository) extends Plan {
 
   def toFeedback(template: Template, eventId: String, sessionId: String): Option[Feedback] = {
     for {
-      overall <- template.getPropertyValue("overall").map(_.value.toString.toInt)
-      relevance <- template.getPropertyValue("relevance").map(_.value.toString.toInt)
-      content <- template.getPropertyValue("content").map(_.value.toString.toInt)
-      quality <- template.getPropertyValue("quality").map(_.value.toString.toInt)
+      overall <- template.getPropertyValue("overall").map(_.value.toString.toShort)
+      relevance <- template.getPropertyValue("relevance").map(_.value.toString.toShort)
+      content <- template.getPropertyValue("content").map(_.value.toString.toShort)
+      quality <- template.getPropertyValue("quality").map(_.value.toString.toShort)
     } yield {
-      Feedback(None, null, "http", UUID.fromString(sessionId), overall, Some(relevance), Some(content), Some(quality))
+      Feedback(null, null, "http", UUID.fromString(sessionId), overall, Some(relevance), Some(content), Some(quality))
     }
   }
 
