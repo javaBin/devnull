@@ -58,9 +58,6 @@ libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
   "org.ini4j"              %  "ini4j"                 % "0.5.2",
   "org.constretto"         %% "constretto-scala"      % "1.1",
   "net.hamnaberg.rest"     %% "scala-json-collection" % "2.3",
-  "com.andersen-gott"      %% "scravatar"             % "1.0.3",
-  "com.sksamuel.scrimage"  %% "scrimage-core"         % "1.4.2",
-  "org.jsoup"              %  "jsoup"                 % "1.7.2",
   "commons-io"             %  "commons-io"            % "2.3",
   "org.scalatest"          %  "scalatest_2.11"        % "2.2.4"   % "test"
 )
