@@ -8,7 +8,7 @@ lazy val AllTests = config("all") extend Test
 lazy val DbTests = config("db") extend Test
 def testArg(key: String, value: String ) = Tests.Argument(TestFrameworks.ScalaTest, key, value)
 
-lazy val root = (project in file(".")).
+lazy val devnull = (project in file(".")).
   configs(AllTests, DbTests).
   settings(commonSettings: _*).
   settings(inConfig(AllTests)(Defaults.testTasks): _*).
