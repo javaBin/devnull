@@ -15,6 +15,10 @@ case class Feedback(id: FeedbackId,
                     rating: Ratings)
 
 case class DatabaseConfig(driver: String = "org.postgresql.Driver",
-                          connectionUrl: String = "jdbc:postgresql:devnull",
+                          host: String = "localhost",
+                          port: Int = 5432,
+                          database: String = "devnull",
                           username: String = "devnull",
-                          password: String = "devnull")
+                          password: String = "devnull") {
+  val connectionUrl = s"jdbc:postgresql://$host:$port/$database"
+}
