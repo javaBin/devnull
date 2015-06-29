@@ -27,6 +27,30 @@ Unit test, database test and test that is tagged as slow.
 sbt all:test
 ````
 
+Services
+========
+
+Add feedback
+------------
+
+Endpoint: 
+`POST events/<eventId>/sessions/<sessionId>/feedbacks`
+
+Content:
+
+```
+{
+  "template": {
+    "data": [
+      {"name": "overall",   "value" : 1},
+      {"name": "relevance", "value" : 1},
+      {"name": "content",   "value" : 1},
+      {"name": "quality",   "value" : 1},
+    ]
+  }
+}
+```
+
 Examples
 ========
 
