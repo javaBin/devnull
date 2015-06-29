@@ -51,6 +51,8 @@ Content:
 }
 ```
 
+Valid input in the value parameter is an integer in the range 0 to 5 where 5 is the best score.
+
 Examples
 ========
 
