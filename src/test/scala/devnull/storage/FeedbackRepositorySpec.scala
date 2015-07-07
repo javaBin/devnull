@@ -22,7 +22,7 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers {
     it("should insert a feedback", DatabaseTag) {
       val response: FeedbackId = repo.insertFeedback(FeedbackTestData.createFeedback()).transact(xa).run
 
-      response.id should be > 0
+      response.feedbackId should be > 0
     }
 
     it ("should query an inserted feedback", DatabaseTag) {

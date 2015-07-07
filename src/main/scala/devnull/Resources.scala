@@ -3,6 +3,7 @@ package devnull
 import javax.servlet.http.HttpServletRequest
 
 import devnull.storage.{FeedbackId, FeedbackRepository}
+import devnull.ResponseWrites.ResponseJson
 import doobie.imports._
 import doobie.util.transactor.Transactor
 import linx.Root
@@ -21,6 +22,8 @@ import scalaz.concurrent.Task
 class Resources(val feedbackRepository: FeedbackRepository, xa: Transactor[Task]) extends Plan {
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
+  case class Ping(ping: String)
+
   override def intent: Intent = Intent {
     case Root() => handleRoot()
     case Links.Feedbacks(eventId, sessionId) => handleFeedbacks(eventId, sessionId)
@@ -31,7 +34,7 @@ class Resources(val feedbackRepository: FeedbackRepository, xa: Transactor[Task]
     val get = for {
       _ <- GET
     } yield {
-      JsonContent ~> ResponseString( """{"ping":"ok"} """)
+      Ok ~> ResponseJson(Ping("pong"))
     }
     get
   }
@@ -58,7 +61,7 @@ class Resources(val feedbackRepository: FeedbackRepository, xa: Transactor[Task]
     } yield {
         println(s"POST => $f from $voterId")
         val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
-        Accepted ~> ResponseString("{\"feedbackId\": " + feedbackId.id + " }")
+        Accepted ~> ResponseJson(feedbackId)
     }
     post
   }
