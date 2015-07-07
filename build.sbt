@@ -50,8 +50,8 @@ lazy val doobieVersion = "0.2.1"
 
 val database = Seq(
   "org.flywaydb"   %  "flyway-core"               % "3.2.1",
-  "org.tpolecat"   %% "doobie-core"               % doobieVersion          withSources(),
-  "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion          withSources()
+  "org.tpolecat"   %% "doobie-core"               % doobieVersion  withSources(),
+  "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion  withSources()  exclude("postgresql", "postgresql")
 )
 
 libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
