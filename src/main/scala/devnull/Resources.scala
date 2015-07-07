@@ -2,7 +2,9 @@ package devnull
 
 import javax.servlet.http.HttpServletRequest
 
-import devnull.storage.FeedbackRepository
+import devnull.storage.{FeedbackId, FeedbackRepository}
+import doobie.imports._
+import doobie.util.transactor.Transactor
 import linx.Root
 import net.hamnaberg.json.collection.{NativeJsonCollectionParser, Template}
 import unfiltered.directives.Directives._
@@ -14,8 +16,9 @@ import unfiltered.request._
 import unfiltered.response._
 
 import scala.language.implicitConversions
+import scalaz.concurrent.Task
 
-class Resources(val feedbackRepository: FeedbackRepository) extends Plan {
+class Resources(val feedbackRepository: FeedbackRepository, xa: Transactor[Task]) extends Plan {
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
   override def intent: Intent = Intent {
@@ -54,8 +57,8 @@ class Resources(val feedbackRepository: FeedbackRepository) extends Plan {
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
         println(s"POST => $f from $voterId")
-        feedbackRepository.insertFeedback(f)
-        Accepted // todo return a feedback id.
+        val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
+        Accepted ~> ResponseString("{\"feedbackId\": " + feedbackId.id + " }")
     }
     post
   }
@@ -79,6 +82,6 @@ class Resources(val feedbackRepository: FeedbackRepository) extends Plan {
 
 object Resources {
 
-  def apply(feedbackRepository: FeedbackRepository) = new Resources(feedbackRepository)
+  def apply(feedbackRepository: FeedbackRepository, xa: Transactor[Task]) = new Resources(feedbackRepository, xa)
 
 }

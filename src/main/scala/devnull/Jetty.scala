@@ -29,7 +29,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val repository: FeedbackRepository = new FeedbackRepository()
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
-      _.plan(Resources(repository))
+      _.plan(Resources(repository, xa))
     }.requestLogging("access.log")
 
     server.underlying.setSendDateHeader(true)
