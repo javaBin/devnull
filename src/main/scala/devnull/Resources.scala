@@ -47,12 +47,13 @@ class Resources(val feedbackRepository: FeedbackRepository) extends Plan {
     val post = for {
       _ <- POST
       // _ <- contentType("application/vnd.collection+json")
+      voterId <- Identification.identify()
       _ <- contentType("application/json")
       parsed <- withTemplate(t => JsonCollectionConverter.toFeedback(t, eventId, sessionId))
       feedback <- fromEither(parsed)
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
-        println(s"POST => $f ")
+        println(s"POST => $f from $voterId")
         feedbackRepository.insertFeedback(f)
         Accepted // todo return a feedback id.
     }
