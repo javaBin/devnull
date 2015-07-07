@@ -3,6 +3,7 @@ package devnull
 import javax.servlet.http.HttpServletRequest
 
 import devnull.storage.{FeedbackId, FeedbackRepository}
+import devnull.ResponseWrites.ResponseJson
 import doobie.imports._
 import doobie.util.transactor.Transactor
 import linx.Root
@@ -58,7 +59,7 @@ class Resources(val feedbackRepository: FeedbackRepository, xa: Transactor[Task]
     } yield {
         println(s"POST => $f from $voterId")
         val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
-        Accepted ~> ResponseString("{\"feedbackId\": " + feedbackId.id + " }")
+        Accepted ~> ResponseJson(feedbackId)
     }
     post
   }

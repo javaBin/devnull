@@ -6,7 +6,7 @@ import java.util.UUID
 
 case class Ratings(overall: Short, relevance: Option[Short], content: Option[Short], quality: Option[Short])
 
-case class FeedbackId(id: Int)
+case class FeedbackId(feedbackId: Int)
 
 case class Feedback(id: FeedbackId,
                     created: Timestamp,
