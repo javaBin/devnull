@@ -62,24 +62,4 @@ libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
   "org.scalatest"          %  "scalatest_2.11"        % "2.2.4"   % "test"
 )
 
-pomIncludeRepository := {
-  x => false
-}
-
-crossPaths := false
-
-aetherPublishBothSettings
-
-appAssemblerSettings
-
-appOutput in App := target.value / "appmgr" / "root"
-
-appmgrSettings
-
-appmgrBuild <<= appmgrBuild.dependsOn(appAssemble)
-
-aetherArtifact <<= (aetherArtifact, appmgrBuild) map { (art, build) =>
-  art.attach(build, "appmgr", "zip")
-}
-
 Revolver.settings

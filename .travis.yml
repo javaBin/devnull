@@ -1,0 +1,12 @@
+language: scala
+env:
+  global:
+  - secure: bO9FsRx8i24feLmVFUd4CAYd423edm/qfOtf/LacuOdzCdbfGLVoCPcQP1GVoRCCIz0xUPkwwlRbLY2FbRXIuFE+EtwFqVqoTExmw98aSuOnkhqRQ3OTpc5qyKEhPJPDvw7A39WyoXermol5RBRseSPsbYkUPBdh4wqnwsYJH3g=
+  - secure: d816UXD77ZVvPGvvQnwA57CttedKMa293nV/D8cgQ9HNNPKsC4ShV46J9zVe1nP1tDW0DNb0aTox18Xp+zPeHYAp1UWpDyRxBHZ5hMX5Xm6tJyMeTI2zWo3TP0KYTPmHjKqtM0jf6TRTt88XMBIdGy4Fbos10oY0OLT5/Zu9uVM=
+jdk:
+- oraclejdk8
+after_success:
+- '[[ $TRAVIS_BRANCH == "master" ]] && { sbt publish; };'
+notifications:
+  slack:
+    secure: T66NTaZXlSedNhirrFQ11NOPjubOolJ4IIYgBxHd5tV0MIwv2WXc04p0+x906PGO1dFk+dijf9j3jikIxmKVxHhP60epuMC3spfp6DaE/Gz5Uhp1VfSCtvtCDN9+w8U2b0UUrqWgw9ggS2/lQ/sKx847bnihAeKHy71F3zbzaD4=
