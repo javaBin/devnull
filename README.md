@@ -36,6 +36,13 @@ Add feedback
 Endpoint: 
 `POST events/<eventId>/sessions/<sessionId>/feedbacks`
 
+Headers:
+
+| Header       | Required | Description                |
+|:-------------|:-------- |:-------------------------- |
+| Voter-ID     | Yes      | Used to identify the voter |
+| User-Agent   | No       | Identify the client        |
+
 Content:
 
 ```
