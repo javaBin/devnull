@@ -9,7 +9,9 @@ object FeedbackTestData {
   private val random: Random = new Random()
 
   def createFeedback(session: UUID = UUID.randomUUID(), source: String = UUID.randomUUID().toString): Feedback = {
-    Feedback(null, null, source, session, Ratings(rating().get, rating(), rating(), rating()))
+    val info = VoterInfo("1234", "127.0.0.1", "spec")
+    val ratings = Ratings(rating().get, rating(), rating(), rating())
+    Feedback(null, null, info, session, ratings)
   }
 
   private def rating() = {

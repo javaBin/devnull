@@ -2,7 +2,7 @@ package devnull
 
 import java.util.UUID
 
-import devnull.storage.Feedback
+import devnull.storage.{VoterInfo, Feedback}
 import net.hamnaberg.json.collection.{Property, Template}
 import org.scalatest.{FunSpec, Matchers}
 
@@ -51,7 +51,9 @@ class JsonCollectionConverterSpec extends FunSpec with Matchers {
       JsonCollectionConverter.toFeedback(
         template,
         UUID.randomUUID().toString,
-        UUID.randomUUID().toString)
+        UUID.randomUUID().toString,
+        VoterInfo("TestVoterId", "1.2.3.4", "spec")
+      )
     }
   }
 

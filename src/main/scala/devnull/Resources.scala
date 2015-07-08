@@ -2,8 +2,8 @@ package devnull
 
 import javax.servlet.http.HttpServletRequest
 
-import devnull.storage.{FeedbackId, FeedbackRepository}
 import devnull.ResponseWrites.ResponseJson
+import devnull.storage.{FeedbackId, FeedbackRepository}
 import doobie.imports._
 import doobie.util.transactor.Transactor
 import linx.Root
@@ -53,13 +53,13 @@ class Resources(val feedbackRepository: FeedbackRepository, xa: Transactor[Task]
     val post = for {
       _ <- POST
       // _ <- contentType("application/vnd.collection+json")
-      voterId <- Identification.identify()
+      voterInfo <- Identification.identify()
       _ <- contentType("application/json")
-      parsed <- withTemplate(t => JsonCollectionConverter.toFeedback(t, eventId, sessionId))
+      parsed <- withTemplate(template => JsonCollectionConverter.toFeedback(template, eventId, sessionId, voterInfo))
       feedback <- fromEither(parsed)
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
-        println(s"POST => $f from $voterId")
+        println(s"POST => $f from $voterInfo")
         val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
         Accepted ~> ResponseJson(feedbackId)
     }
