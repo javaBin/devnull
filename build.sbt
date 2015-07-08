@@ -1,6 +1,7 @@
 val commonSettings = Seq(
   organization := "no.java.devnull",
   scalaVersion := "2.11.6",
+  crossScalaVersions := Seq("2.11.6"),
   scalacOptions := Seq("-deprecation", "-feature")
 )
 
