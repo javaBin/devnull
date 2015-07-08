@@ -16,7 +16,9 @@ class FeedbackRepository {
       sql"""
        INSERT INTO feedback (
            created,
-           source,
+           client_info,
+           voter_id,
+           ip_address,
            session_id,
            rating_overall,
            rating_relevance,
@@ -24,7 +26,9 @@ class FeedbackRepository {
            rating_quality
        ) VALUES (
            current_timestamp,
-           ${fb.source},
+           ${fb.voterInfo.clientInfo},
+           ${fb.voterInfo.voterId},
+           ${fb.voterInfo.ipAddress},
            ${fb.sessionId},
            ${fb.rating.overall},
            ${fb.rating.relevance},
@@ -38,7 +42,9 @@ class FeedbackRepository {
        SELECT
            id,
            created,
-           source,
+           voter_id,
+           ip_address,
+           client_info,
            session_id,
            rating_overall,
            rating_relevance,

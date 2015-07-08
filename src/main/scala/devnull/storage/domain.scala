@@ -3,6 +3,10 @@ package devnull.storage
 import java.sql.Timestamp
 import java.util.UUID
 
+case class VoterInfo(
+    voterId: String,
+    ipAddress: String,
+    clientInfo: String)
 
 case class Ratings(overall: Short, relevance: Option[Short], content: Option[Short], quality: Option[Short])
 
@@ -10,7 +14,7 @@ case class FeedbackId(feedbackId: Int)
 
 case class Feedback(id: FeedbackId,
                     created: Timestamp,
-                    source: String,
+                    voterInfo: VoterInfo,
                     sessionId: UUID,
                     rating: Ratings)
 

@@ -2,7 +2,7 @@ package devnull
 
 import javax.servlet.http.HttpServletRequest
 
-import devnull.storage.{FeedbackId, FeedbackRepository}
+import devnull.storage.{VoterInfo, FeedbackId, FeedbackRepository}
 import devnull.ResponseWrites.ResponseJson
 import doobie.imports._
 import doobie.util.transactor.Transactor
@@ -55,7 +55,7 @@ class Resources(val feedbackRepository: FeedbackRepository, xa: Transactor[Task]
       // _ <- contentType("application/vnd.collection+json")
       voterId <- Identification.identify()
       _ <- contentType("application/json")
-      parsed <- withTemplate(t => JsonCollectionConverter.toFeedback(t, eventId, sessionId))
+      parsed <- withTemplate(template => JsonCollectionConverter.toFeedback(template, eventId, sessionId, VoterInfo(voterId.deviceId, "unknown", "unknown")))
       feedback <- fromEither(parsed)
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
