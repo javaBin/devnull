@@ -17,15 +17,8 @@ object Identification {
       voterId <- commit(when { case VoterIdHeader(voterId) => voterId }.orElse(BadRequest))
       userAgent <- commit(whenOr { case UserAgent(ua) => ua }.orElse("unknown"))
       ipAddress <- commit(request[HttpServletRequest].map(r => r.remoteAddr))
-      forwardFor <- commit(whenOr { case XForwardedFor(ff) => headOfList(ff) }.orElse(None))
+      forwardFor <- commit(whenOr { case XForwardedFor(ff) => ff.headOption }.orElse(None))
     } yield VoterInfo(voterId, forwardFor.getOrElse(ipAddress), userAgent)
-
-  private def headOfList(ff: List[String]): Option[String] = {
-    ff match {
-      case x :: xs => Some(x)
-      case Nil => None
-    }
-  }
 
   /* HttpRequest has to be of type Any because of type-inference (SLS 8.5) */
   case class whenOr[A](f: PartialFunction[HttpRequest[Any], A]) {
