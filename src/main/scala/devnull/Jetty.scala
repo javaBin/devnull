@@ -2,6 +2,7 @@ package devnull
 
 import java.io.File
 
+import com.typesafe.scalalogging.LazyLogging
 import devnull.storage.{FeedbackRepository, DatabaseConfig, Migration}
 import doobie.util.transactor.DriverManagerTransactor
 import unfiltered.jetty.Server
@@ -33,7 +34,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     }.requestLogging("access.log")
 
     server.underlying.setSendDateHeader(true)
-    server.run(_ => println("Running server at " + cfg.httpPort))
+    server.run(_ => logger.info("Running server at " + cfg.httpPort))
     AppReference(server)
   }
 
@@ -55,7 +56,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
 
 }
 
-trait InitApp[C, R] extends App {
+trait InitApp[C, R] extends App with LazyLogging {
 
   def onStartup(): C
 
@@ -63,10 +64,10 @@ trait InitApp[C, R] extends App {
 
   def onShutdown(refs: R)
 
-  println("onStartup")
+  logger.debug("onStartup")
   val cfg = onStartup()
-  println("onStart")
+  logger.debug("onStart")
   val refs = onStart(cfg)
-  println("onShutdown")
+  logger.debug("onShutdown")
   onShutdown(refs)
 }

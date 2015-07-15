@@ -86,11 +86,12 @@ lazy val devnull = (project in file(".")).
     testOptions in DbTests  := Seq(testArg("-n", "devnull.tag.db")),
     testOptions in AllTests := Seq(),
     libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
-      "org.ini4j"              %  "ini4j"                 % "0.5.2",
-      "org.constretto"         %% "constretto-scala"      % "1.1",
-      "net.hamnaberg.rest"     %% "scala-json-collection" % "2.3",
-      "commons-io"             %  "commons-io"            % "2.3",
-      "org.scalatest"          %%  "scalatest"            % "2.2.4"   % "test"
+      "org.ini4j"                  %  "ini4j"                 % "0.5.2",
+      "org.constretto"             %% "constretto-scala"      % "1.1",
+      "net.hamnaberg.rest"         %% "scala-json-collection" % "2.3",
+      "commons-io"                 %  "commons-io"            % "2.3",
+      "com.typesafe.scala-logging" %% "scala-logging"         % "3.1.0",
+      "org.scalatest"              %%  "scalatest"            % "2.2.4"   % "test"
     )
     /*
     Arguments: http://www.scalatest.org/user_guide/using_the_runner

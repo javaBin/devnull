@@ -2,6 +2,7 @@ package devnull.rest
 
 import javax.servlet.http.HttpServletRequest
 
+import com.typesafe.scalalogging.LazyLogging
 import devnull.rest.helpers.ContentTypeResolver.withContentType
 import devnull.rest.helpers.EitherDirective.{fromEither, withTemplate}
 import devnull.rest.helpers.JsonCollectionConverter.toFeedback
@@ -17,7 +18,7 @@ import unfiltered.response.{Accepted, BadRequest, ResponseFunction, ResponseStri
 
 import scalaz.concurrent.Task
 
-class FeedbackResource(feedbackRepository: FeedbackRepository, xa: Transactor[Task]) {
+class FeedbackResource(feedbackRepository: FeedbackRepository, xa: Transactor[Task]) extends LazyLogging {
 
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
@@ -31,7 +32,7 @@ class FeedbackResource(feedbackRepository: FeedbackRepository, xa: Transactor[Ta
       feedback <- fromEither(parsed)
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
-        println(s"POST => $f from $voterInfo")
+        logger.debug(s"POST => $f from $voterInfo")
         val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
         Accepted ~> ResponseJson(feedbackId)
       }
