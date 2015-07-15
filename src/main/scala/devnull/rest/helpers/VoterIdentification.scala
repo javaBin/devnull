@@ -2,6 +2,8 @@ package devnull.rest.helpers
 
 import javax.servlet.http.HttpServletRequest
 
+import devnull.rest.dto.FaultResponse
+import devnull.rest.helpers.ResponseWrites.ResponseJson
 import devnull.storage.VoterInfo
 import unfiltered.directives.Directives._
 import unfiltered.directives.FilterDirective
@@ -15,7 +17,8 @@ object VoterIdentification {
 
   def identify() =
     for {
-      voterId <- commit(when { case VoterIdHeader(voterId) => voterId }.orElse(BadRequest))
+      voterId <- commit(when { case VoterIdHeader(voterId) => voterId }
+        .orElse(BadRequest ~> ResponseJson(FaultResponse("parsing", "Missing Voter-ID header"))))
       userAgent <- commit(whenOr { case UserAgent(ua) => ua }.orElse("unknown"))
       ipAddress <- commit(request[HttpServletRequest].map(r => r.remoteAddr))
       forwardFor <- commit(whenOr { case XForwardedFor(ff) => ff.headOption }.orElse(None))
