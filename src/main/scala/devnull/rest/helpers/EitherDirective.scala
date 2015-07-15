@@ -2,10 +2,12 @@ package devnull.rest.helpers
 
 import javax.servlet.http.HttpServletRequest
 
+import devnull.rest.dto.FaultResponse
+import devnull.rest.helpers.ResponseWrites.ResponseJson
 import net.hamnaberg.json.collection.{NativeJsonCollectionParser, Template}
 import unfiltered.directives.Directive
 import unfiltered.directives.Directives._
-import unfiltered.response.{BadRequest, ResponseFunction, ResponseString}
+import unfiltered.response.{BadRequest, ResponseFunction}
 
 object EitherDirective {
 
@@ -19,7 +21,7 @@ object EitherDirective {
 
   def fromEither[T](either: Either[Throwable, T]): EitherDirective[T] = {
     either.fold(
-      ex => failure(BadRequest ~> ResponseString(ex.getMessage)),
+      ex => failure(BadRequest ~> ResponseJson(FaultResponse(ex))),
       a => success(a)
     )
   }
