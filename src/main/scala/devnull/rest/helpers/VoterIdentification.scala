@@ -1,4 +1,4 @@
-package devnull
+package devnull.rest.helpers
 
 import javax.servlet.http.HttpServletRequest
 
@@ -9,9 +9,10 @@ import unfiltered.directives.Result.Success
 import unfiltered.request.{HttpRequest, StringHeader, UserAgent, XForwardedFor}
 import unfiltered.response.{BadRequest, ResponseFunction}
 
-sealed trait Identification
+object VoterIdentification {
 
-object Identification {
+  private object VoterIdHeader extends StringHeader("Voter-ID")
+
   def identify() =
     for {
       voterId <- commit(when { case VoterIdHeader(voterId) => voterId }.orElse(BadRequest))
@@ -29,7 +30,6 @@ object Identification {
       )
   }
 
-
 }
 
-private object VoterIdHeader extends StringHeader("Voter-ID")
+

@@ -1,4 +1,4 @@
-package devnull
+package devnull.rest.helpers
 
 import java.io.OutputStreamWriter
 

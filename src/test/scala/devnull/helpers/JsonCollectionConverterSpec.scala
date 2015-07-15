@@ -1,8 +1,9 @@
-package devnull
+package devnull.helpers
 
 import java.util.UUID
 
-import devnull.storage.{VoterInfo, Feedback}
+import devnull.rest.helpers.JsonCollectionConverter
+import devnull.storage.{Feedback, VoterInfo}
 import net.hamnaberg.json.collection.{Property, Template}
 import org.scalatest.{FunSpec, Matchers}
 

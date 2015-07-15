@@ -1,8 +1,8 @@
-package devnull
+package devnull.rest.helpers
 
 import java.util.UUID
 
-import devnull.storage.{VoterInfo, Feedback, Ratings}
+import devnull.storage.{Feedback, Ratings, VoterInfo}
 import net.hamnaberg.json.collection.Template
 import net.hamnaberg.json.collection.data.JavaReflectionData
 
