@@ -86,6 +86,7 @@ lazy val devnull = (project in file(".")).
     testOptions in DbTests  := Seq(testArg("-n", "devnull.tag.db")),
     testOptions in AllTests := Seq(),
     libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
+      "org.json4s"                 %% "json4s-native"         % "3.2.10",
       "org.ini4j"                  %  "ini4j"                 % "0.5.2",
       "org.constretto"             %% "constretto-scala"      % "1.1",
       "net.hamnaberg.rest"         %% "scala-json-collection" % "2.3",

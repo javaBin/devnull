@@ -1,14 +1,15 @@
 package devnull.rest
 
+import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.rest.helpers.ContentTypeResolver.withContentType
-import devnull.rest.helpers.EitherDirective.{fromEither, withTemplate}
+import devnull.rest.helpers.ContentTypeResolver.validContentType
+import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson, withTemplate}
 import devnull.rest.helpers.JsonCollectionConverter.toFeedback
 import devnull.rest.helpers.ResponseWrites.ResponseJson
 import devnull.rest.helpers._
-import devnull.storage.{FeedbackId, FeedbackRepository}
+import devnull.storage._
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
 import unfiltered.directives.Directive
@@ -23,12 +24,11 @@ class FeedbackResource(feedbackRepository: FeedbackRepository, xa: Transactor[Ta
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
   def handleFeedbacks(eventId: String, sessionId: String): ResponseDirective = {
-    val post = for {
+    val postJson = for {
       _ <- POST
-      // _ <- contentType("application/vnd.collection+json")
       voterInfo <- VoterIdentification.identify()
-      _ <- withContentType("application/json")
-      parsed <- withTemplate(template => toFeedback(template, eventId, sessionId, voterInfo))
+      contentType <- validContentType
+      parsed <- parseFeedback(contentType, eventId, sessionId, voterInfo)
       feedback <- fromEither(parsed)
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
@@ -36,7 +36,15 @@ class FeedbackResource(feedbackRepository: FeedbackRepository, xa: Transactor[Ta
         val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
         Accepted ~> ResponseJson(feedbackId)
       }
-    post
+    postJson
   }
 
+
+  def parseFeedback(contentType: SupportedContentType, eventId:String, sessionId: String, voterInfo: VoterInfo):
+  EitherDirective[Either[Throwable, Option[Feedback]]] = {
+    contentType match {
+      case CollectionJsonContentType => withTemplate(template => toFeedback(template, eventId, sessionId, voterInfo))
+      case JsonContentType => withJson { rating: Ratings => Feedback(null, null, voterInfo, UUID.fromString(sessionId), rating) }
+    }
+  }
 }
