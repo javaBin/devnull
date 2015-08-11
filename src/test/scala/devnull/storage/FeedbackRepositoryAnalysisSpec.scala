@@ -8,7 +8,8 @@ import org.scalatest.{Matchers, FunSpec}
 import scalaz.concurrent.Task
 
 class FeedbackRepositoryAnalysisSpec extends FunSpec with Matchers with DoobieAnalysisMatcher with DatabaseMigration {
-  val cfg = DatabaseConfig()
+
+  val cfg = DatabaseConfigEnv()
   implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)
   val repo: FeedbackRepository = new FeedbackRepository()
 
