@@ -7,11 +7,13 @@ import com.typesafe.scalalogging.LazyLogging
 import devnull.rest.helpers.ContentTypeResolver.validContentType
 import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson, withTemplate}
 import devnull.rest.helpers.JsonCollectionConverter.toFeedback
-import devnull.rest.helpers.ResponseWrites.ResponseJson
+import devnull.rest.helpers.ResponseWrites.{ResponseCollectionJson, ResponseJson}
 import devnull.rest.helpers._
 import devnull.storage._
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
+import net.hamnaberg.json.collection.{JsonCollection, Item}
+import net.hamnaberg.json.collection.data.JavaReflectionData
 import unfiltered.directives.Directive
 import unfiltered.directives.Directives._
 import unfiltered.request.POST
@@ -34,11 +36,20 @@ class FeedbackResource(feedbackRepository: FeedbackRepository, xa: Transactor[Ta
     } yield {
         logger.debug(s"POST => $f from $voterInfo")
         val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
-        Accepted ~> ResponseJson(feedbackId)
+        Accepted ~> {
+          contentType match {
+            case JsonContentType => ResponseJson(feedbackId)
+            case CollectionJsonContentType => {
+              implicit val formats = org.json4s.DefaultFormats
+              implicit val extractor = new JavaReflectionData[FeedbackId]
+              val item = Item(java.net.URI.create(""), feedbackId, Nil)
+              ResponseCollectionJson(JsonCollection(item))
+            }
+          }
+        }
       }
     postJson
   }
-
 
   def parseFeedback(contentType: SupportedContentType, eventId:String, sessionId: String, voterInfo: VoterInfo):
   EitherDirective[Either[Throwable, Option[Feedback]]] = {
