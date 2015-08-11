@@ -2,10 +2,18 @@ sudo: false
 language: scala
 scala:
   - 2.11.6
+addons:
+  postgresql: "9.3"
+before_script:
+  - psql -c 'create database devnull;' -U postgres
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION all:test
 env:
   global:
-  - secure: bO9FsRx8i24feLmVFUd4CAYd423edm/qfOtf/LacuOdzCdbfGLVoCPcQP1GVoRCCIz0xUPkwwlRbLY2FbRXIuFE+EtwFqVqoTExmw98aSuOnkhqRQ3OTpc5qyKEhPJPDvw7A39WyoXermol5RBRseSPsbYkUPBdh4wqnwsYJH3g=
-  - secure: d816UXD77ZVvPGvvQnwA57CttedKMa293nV/D8cgQ9HNNPKsC4ShV46J9zVe1nP1tDW0DNb0aTox18Xp+zPeHYAp1UWpDyRxBHZ5hMX5Xm6tJyMeTI2zWo3TP0KYTPmHjKqtM0jf6TRTt88XMBIdGy4Fbos10oY0OLT5/Zu9uVM=
+    - secure: bO9FsRx8i24feLmVFUd4CAYd423edm/qfOtf/LacuOdzCdbfGLVoCPcQP1GVoRCCIz0xUPkwwlRbLY2FbRXIuFE+EtwFqVqoTExmw98aSuOnkhqRQ3OTpc5qyKEhPJPDvw7A39WyoXermol5RBRseSPsbYkUPBdh4wqnwsYJH3g=
+    - secure: d816UXD77ZVvPGvvQnwA57CttedKMa293nV/D8cgQ9HNNPKsC4ShV46J9zVe1nP1tDW0DNb0aTox18Xp+zPeHYAp1UWpDyRxBHZ5hMX5Xm6tJyMeTI2zWo3TP0KYTPmHjKqtM0jf6TRTt88XMBIdGy4Fbos10oY0OLT5/Zu9uVM=
+    - DB_PASSWORD: ''
+    - DB_USERNAME: postgres
 jdk:
 - oraclejdk8
 after_success:
