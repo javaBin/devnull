@@ -85,6 +85,8 @@ lazy val devnull = (project in file(".")).
     testOptions in Test     := Seq(testArg("-l", "devnull.tag.db"), testArg( "-l", "devnull.tag.slow")),
     testOptions in DbTests  := Seq(testArg("-n", "devnull.tag.db")),
     testOptions in AllTests := Seq(),
+    parallelExecution in DbTests := false,
+    parallelExecution in AllTests := false,
     libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
       "org.json4s"                 %% "json4s-native"         % "3.2.10",
       "org.ini4j"                  %  "ini4j"                 % "0.5.2",
