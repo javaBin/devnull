@@ -7,7 +7,7 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 import scalaz.concurrent.Task
 
-class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers {
+class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers with DatabaseMigration {
 
 
   val cfg = DatabaseConfigEnv()
