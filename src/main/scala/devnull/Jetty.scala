@@ -3,7 +3,7 @@ package devnull
 import java.io.File
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.storage.{FeedbackRepository, DatabaseConfig, Migration}
+import devnull.storage.{DatabaseConfigEnv, FeedbackRepository, DatabaseConfig, Migration}
 import doobie.util.transactor.DriverManagerTransactor
 import unfiltered.jetty.Server
 
@@ -45,12 +45,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val contextPath = propOrElse("contextPath", envOrElse("CONTEXT_PATH", "/server"))
     val home = new File(propOrElse("app.home", envOrElse("app.home", ".")))
 
-    val dbConfig = DatabaseConfig(
-      database = propOrElse("dbName", envOrElse("DB_NAME", "devnull")),
-      username = propOrElse("dbUsername", envOrElse("DB_USERNAME", "devnull")),
-      password = propOrElse("dbPassword", envOrElse("DB_PASSWORD", "devnull"))
-    )
-
+    val dbConfig = DatabaseConfigEnv()
     AppConfig(port, contextPath, home, dbConfig)
   }
 

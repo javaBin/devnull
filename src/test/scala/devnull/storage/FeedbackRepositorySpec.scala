@@ -9,7 +9,8 @@ import scalaz.concurrent.Task
 
 class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers {
 
-  val cfg = DatabaseConfig()
+
+  val cfg = DatabaseConfigEnv()
   val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)
   val repo = new FeedbackRepository()
 

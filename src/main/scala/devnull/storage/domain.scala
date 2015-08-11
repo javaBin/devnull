@@ -3,6 +3,8 @@ package devnull.storage
 import java.sql.Timestamp
 import java.util.UUID
 
+import scala.util.Properties._
+
 case class VoterInfo(
     voterId: String,
     ipAddress: String,
@@ -25,4 +27,15 @@ case class DatabaseConfig(driver: String = "org.postgresql.Driver",
                           username: String = "devnull",
                           password: String = "devnull") {
   val connectionUrl = s"jdbc:postgresql://$host:$port/$database"
+}
+
+object DatabaseConfigEnv {
+  
+  def apply(): DatabaseConfig = {
+    DatabaseConfig(
+      database = propOrElse("dbName", envOrElse("DB_NAME", "devnull")),
+      username = propOrElse("dbUsername", envOrElse("DB_USERNAME", "devnull")),
+      password = propOrElse("dbPassword", envOrElse("DB_PASSWORD", "devnull"))
+    )
+  }
 }
