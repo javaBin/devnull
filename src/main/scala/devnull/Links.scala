@@ -13,4 +13,5 @@ object Links {
   val Feedbacks = Session / "feedbacks"
   val Feedback = Feedbacks / 'feedbackId
 
+  val AppInfo = Root / "app-info"
 }

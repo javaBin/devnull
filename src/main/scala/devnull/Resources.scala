@@ -2,7 +2,7 @@ package devnull
 
 import javax.servlet.http.HttpServletRequest
 
-import devnull.rest.{FeedbackResource, PingResource}
+import devnull.rest.{AppInfo, FeedbackResource, PingResource}
 import devnull.storage.FeedbackRepository
 import doobie.util.transactor.Transactor
 import linx.Root
@@ -21,6 +21,7 @@ class Resources(feedbackResource: FeedbackResource) extends Plan {
 
   override def intent: Intent = Intent {
     case Root() => PingResource.handlePing()
+    case Links.AppInfo() => AppInfo.handelAppInfo()
     case Links.Feedbacks(eventId, sessionId) => feedbackResource.handleFeedbacks(eventId, sessionId)
     case _ => failure(NotFound)
   }

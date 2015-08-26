@@ -103,3 +103,14 @@ lazy val devnull = (project in file(".")).
     -w   package with sub packages
     */
   )
+enablePlugins(BuildInfoPlugin)
+
+buildInfoPackage := "devnull"
+
+buildInfoKeys := Seq[BuildInfoKey](
+  scalaVersion,
+  BuildInfoKey.action("version") { (version in ThisBuild ).value },
+  BuildInfoKey.action("buildTime") { System.currentTimeMillis },
+  BuildInfoKey.action("branch"){ Git.branch },
+  BuildInfoKey.action("sha"){ Git.sha }
+)
