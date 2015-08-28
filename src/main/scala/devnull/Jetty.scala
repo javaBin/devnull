@@ -11,7 +11,12 @@ import unfiltered.jetty.Server
 import scala.util.Properties._
 import scalaz.concurrent.Task
 
-case class AppConfig(httpPort: Int, httpContextPath: String, home: File, databaseConfig: DatabaseConfig)
+case class AppConfig(
+    httpPort: Int,
+    httpContextPath: String,
+    home: File,
+    databaseConfig: DatabaseConfig,
+    emsUrl: String)
 
 case class AppReference(server: Server)
 
@@ -29,7 +34,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val xa = DriverManagerTransactor[Task](dbCfg.driver, dbCfg.connectionUrl, dbCfg.username, dbCfg.password)
 
     val repository: FeedbackRepository = new FeedbackRepository()
-    val emsService: EmsService = new CachingEmsService(new EmsHttpClient("http://test.javazone.no/ems/server/"))
+    val emsService: EmsService = new CachingEmsService(new EmsHttpClient(cfg.emsUrl))
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
       _.plan(Resources(emsService, repository, xa))
@@ -46,9 +51,10 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val port = envOrElse("PORT", "8082").toInt
     val contextPath = propOrElse("contextPath", envOrElse("CONTEXT_PATH", "/server"))
     val home = new File(propOrElse("app.home", envOrElse("app.home", ".")))
+    val emsUrl = propOrElse("emsUrl", envOrElse("emsUrl", "http://test.javazone.no/ems/server/"))
 
     val dbConfig = DatabaseConfigEnv()
-    AppConfig(port, contextPath, home, dbConfig)
+    AppConfig(port, contextPath, home, dbConfig, emsUrl)
   }
 
 }
