@@ -35,7 +35,7 @@ object DirectiveHelper {
   }
 
   def trueOrElse(b: Boolean, err: ResponseFunction[Any]) = {
-    if (b) success()
+    if (b) success(true)
     else error(err)
   }
 
