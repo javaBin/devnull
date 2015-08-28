@@ -2,6 +2,7 @@ package devnull
 
 import javax.servlet.http.HttpServletRequest
 
+import devnull.ems.EmsService
 import devnull.rest.{AppInfo, FeedbackResource, PingResource}
 import devnull.storage.FeedbackRepository
 import doobie.util.transactor.Transactor
@@ -43,8 +44,8 @@ class Resources(feedbackResource: FeedbackResource) extends Plan {
 
 object Resources {
 
-  def apply(feedbackRepository: FeedbackRepository, xa: Transactor[Task]) = {
-    val feedbackResource: FeedbackResource = new FeedbackResource(feedbackRepository, xa)
+  def apply(emsService: EmsService, feedbackRepository: FeedbackRepository, xa: Transactor[Task]) = {
+    val feedbackResource: FeedbackResource = new FeedbackResource(emsService, feedbackRepository, xa)
     new Resources(feedbackResource)
   }
 

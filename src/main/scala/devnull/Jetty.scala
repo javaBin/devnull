@@ -3,6 +3,7 @@ package devnull
 import java.io.File
 
 import com.typesafe.scalalogging.LazyLogging
+import devnull.ems.{EmsHttpClient, CachingEmsService, EmsService}
 import devnull.storage.{DatabaseConfigEnv, FeedbackRepository, DatabaseConfig, Migration}
 import doobie.util.transactor.DriverManagerTransactor
 import unfiltered.jetty.Server
@@ -28,9 +29,10 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val xa = DriverManagerTransactor[Task](dbCfg.driver, dbCfg.connectionUrl, dbCfg.username, dbCfg.password)
 
     val repository: FeedbackRepository = new FeedbackRepository()
+    val emsService: EmsService = new CachingEmsService(new EmsHttpClient("http://test.javazone.no/ems/server/"))
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
-      _.plan(Resources(repository, xa))
+      _.plan(Resources(emsService, repository, xa))
     }.requestLogging("access.log")
 
     server.underlying.setSendDateHeader(true)

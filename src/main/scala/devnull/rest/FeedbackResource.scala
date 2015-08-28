@@ -4,7 +4,9 @@ import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.LazyLogging
+import devnull.ems.{SessionId, EventId, EmsService}
 import devnull.rest.helpers.ContentTypeResolver.validContentType
+import devnull.rest.helpers.DirectiveHelper.trueOrElse
 import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson, withTemplate}
 import devnull.rest.helpers.JsonCollectionConverter.toFeedback
 import devnull.rest.helpers.ResponseWrites.{ResponseCollectionJson, ResponseJson}
@@ -17,11 +19,14 @@ import net.hamnaberg.json.collection.data.JavaReflectionData
 import unfiltered.directives.Directive
 import unfiltered.directives.Directives._
 import unfiltered.request.POST
-import unfiltered.response.{Accepted, BadRequest, ResponseFunction, ResponseString}
+import unfiltered.response._
 
 import scalaz.concurrent.Task
 
-class FeedbackResource(feedbackRepository: FeedbackRepository, xa: Transactor[Task]) extends LazyLogging {
+class FeedbackResource(
+    ems: EmsService,
+    feedbackRepository: FeedbackRepository,
+    xa: Transactor[Task]) extends LazyLogging {
 
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
@@ -32,6 +37,8 @@ class FeedbackResource(feedbackRepository: FeedbackRepository, xa: Transactor[Ta
       contentType <- validContentType
       parsed <- parseFeedback(contentType, eventId, sessionId, voterInfo)
       feedback <- fromEither(parsed)
+      _ <- getOrElse(ems.getSession(EventId(eventId), SessionId(sessionId)), NotFound ~> ResponseString("Didn't find the session in ems"))
+      _ <- trueOrElse(ems.canRegisterFeedback(EventId(eventId), SessionId(sessionId)), Forbidden ~> ResponseString("Feedback not open yet!"))
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
         logger.debug(s"POST => $f from $voterInfo")
