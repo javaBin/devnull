@@ -1,5 +1,6 @@
 package devnull.rest.helpers
 
+import unfiltered.directives.Directives._
 import unfiltered.directives.FilterDirective
 import unfiltered.directives.Result.{Failure, Success}
 import unfiltered.request.HttpRequest
@@ -31,6 +32,11 @@ object DirectiveHelper {
         _ => Failure(fail)
 
       )
+  }
+
+  def trueOrElse(b: Boolean, err: ResponseFunction[Any]) = {
+    if (b) success()
+    else error(err)
   }
 
 }
