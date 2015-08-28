@@ -14,7 +14,6 @@ trait HttpClient {
 
   def request(pathElements: List[String]): Future[JsonCollection] = {
     val req: Req = pathElements.reverse.foldRight(reqUrl(baseUrl))((path, re) => re / path)
-    print(req.toRequest.getRawUrl)
     c(req OK Collection)
   }
 
