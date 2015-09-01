@@ -1,7 +1,13 @@
 package devnull.ems
 
+import java.util.concurrent.ExecutionException
+
+import dispatch.StatusCode
+import net.hamnaberg.json.collection.JsonCollection
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 trait EmsClient {
   def session(eventId: EventId, session: SessionId): Option[Session]
@@ -12,8 +18,16 @@ class EmsHttpClient(val baseUrl: String) extends EmsClient with HttpClient {
   override def session(eventId: EventId, sessionId: SessionId): Option[Session] = {
     val path: List[Any] = "events" :: eventId :: "sessions" :: sessionId :: Nil
     val reqPath: List[String] = path.map(pe => pe.toString)
+
+    Try(Some(Await.result(request(reqPath), 15.seconds))) match {
+      case Success(response) => handle(response, eventId, sessionId)
+      case Failure(e) => handleFailure(e, eventId, sessionId)
+    }
+  }
+
+  def handle(responseOption: Option[JsonCollection], eventId: EventId, sessionId: SessionId): Option[Session] = {
     for {
-      response <- Some(Await.result(request(reqPath), 15.seconds))
+      response <- responseOption
       item <- response.items.headOption
       slot <- item.links.find(l => l.rel == "slot item")
       prompt <- slot.prompt
@@ -22,6 +36,18 @@ class EmsHttpClient(val baseUrl: String) extends EmsClient with HttpClient {
         case _ => None
       }
     } yield Session(eventId, sessionId, startTime, endTime)
+
   }
+
+  def handleFailure(e: Throwable, eventId: EventId, sessionId: SessionId): Option[Session] = e match {
+    case ex: ExecutionException => ex.getCause match {
+      case StatusCode(405) => None
+      case _ => throw EmsException(eventId, sessionId, e)
+    }
+    case _ => throw EmsException(eventId, sessionId, e)
+  }
+
+  case class EmsException(eventId: EventId, sessionId: SessionId, t: Throwable)
+      extends Exception(s"EventId: '$eventId', SessionId: '$sessionId'", t)
 
 }

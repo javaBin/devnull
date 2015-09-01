@@ -4,16 +4,27 @@ import org.scalatest.{FunSpec, Matchers}
 
 class EmsHttpClientSpec extends FunSpec with Matchers {
 
+  val emsHost = "http://test.javazone.no/ems/server/"
+  val eventId = EventId("9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f")
+  val sessionId = SessionId("f04397ac-a3ba-4048-88f0-54a816bb2a84")
+
   describe("Integration") {
     it("should be able to fetch session") {
-      val eId = EventId("0e6d98e9-5b06-42e7-b275-6abadb498c81")
-      val sId = SessionId("d0e180a3-2aa6-468d-a65f-12859cf1bc66")
-
-      val client = new EmsHttpClient("http://javazone.no/ems/server/")
-      val session = client.session(eId, sId)
+      val client = new EmsHttpClient(emsHost)
+      val session = client.session(eventId, sessionId)
 
       session should not be empty
-      session.get.eventId should be(eId)
+      session.get.eventId should be(eventId)
     }
+
+    it("should not fail") {
+      val sessionThatDoesNotExist = SessionId("00000000-0000-0000-0000-000000000000")
+
+      val client = new EmsHttpClient(emsHost)
+      val session = client.session(eventId, sessionThatDoesNotExist)
+
+      session should be(empty)
+    }
+
   }
 }
