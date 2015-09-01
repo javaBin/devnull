@@ -15,7 +15,7 @@ class CachingEmsServiceSpec extends FunSpec with Matchers {
       val repository: CachingEmsService = new CachingEmsService(new EmsClient {
         override def session(eventId: EventId, session: SessionId): Option[Session] = Some(
           Session(eId, sId, now().minusMinutes(30), now().minusMinutes(20)))
-      })
+      }, 5)
       repository.canRegisterFeedback(eId, sId) should be(true)
     }
 
@@ -23,7 +23,7 @@ class CachingEmsServiceSpec extends FunSpec with Matchers {
       val repository: CachingEmsService = new CachingEmsService(new EmsClient {
         override def session(eventId: EventId, session: SessionId): Option[Session] = Some(
           Session(eId, sId, now().minusMinutes(30), now().minusMinutes(5).minusSeconds(1)))
-      })
+      }, 5)
       repository.canRegisterFeedback(eId, sId) should be(true)
     }
 
@@ -31,7 +31,7 @@ class CachingEmsServiceSpec extends FunSpec with Matchers {
       val repository: CachingEmsService = new CachingEmsService(new EmsClient {
         override def session(eventId: EventId, session: SessionId): Option[Session] = Some(
           Session(eId, sId, now().minusMinutes(30), now().minusMinutes(4)))
-      })
+      }, 5)
       repository.canRegisterFeedback(eId, sId) should be(false)
     }
 
@@ -39,7 +39,7 @@ class CachingEmsServiceSpec extends FunSpec with Matchers {
       val repository: CachingEmsService = new CachingEmsService(new EmsClient {
         override def session(eventId: EventId, session: SessionId): Option[Session] = Some(
           Session(eId, sId, now().minusMinutes(30), now().plusDays(1)))
-      })
+      }, 5)
       repository.canRegisterFeedback(eId, sId) should be(false)
     }
 

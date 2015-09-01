@@ -5,7 +5,7 @@ import devnull.cache.CaffeineExtensions
 
 import scala.concurrent.duration._
 
-class CachingEmsService(emsClient: EmsClient) extends EmsService with CaffeineExtensions {
+class CachingEmsService(emsClient: EmsClient, bufferTime: Int = 10) extends EmsService with CaffeineExtensions {
 
   private val cache: Cache[CK, Option[Session]] = Caffeine.newBuilder()
       .expireAfterWrite(2.hours)
@@ -20,7 +20,9 @@ class CachingEmsService(emsClient: EmsClient) extends EmsService with CaffeineEx
 
   override def canRegisterFeedback(eventId: EventId, sessionId: SessionId): Boolean = {
     getSession(eventId, sessionId) match {
-      case Some(s) => UtcLocalDateTime.now().isAfter(s.endTime.plusMinutes(5))
+      case Some(s) =>
+
+        UtcLocalDateTime.now().isAfter(s.endTime.plusMinutes(bufferTime))
 
       case None => false
     }
