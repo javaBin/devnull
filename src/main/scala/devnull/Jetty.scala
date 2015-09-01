@@ -51,7 +51,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val port = envOrElse("PORT", "8082").toInt
     val contextPath = propOrElse("contextPath", envOrElse("CONTEXT_PATH", "/server"))
     val home = new File(propOrElse("app.home", envOrElse("app.home", ".")))
-    val emsUrl = propOrElse("emsUrl", envOrElse("emsUrl", "http://test.javazone.no/ems/server/"))
+    val emsUrl = propOrElse("emsUrl", envOrElse("EMS_URL", "http://test.javazone.no/ems/server/"))
 
     val dbConfig = DatabaseConfigEnv()
     AppConfig(port, contextPath, home, dbConfig, emsUrl)
