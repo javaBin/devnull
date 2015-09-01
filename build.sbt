@@ -48,7 +48,7 @@ val joda = Seq(
   "org.joda" % "joda-convert" % "1.2"
 )
 
-lazy val unfilteredVersion = "0.8.3"
+lazy val unfilteredVersion = "0.8.4"
 
 val unfiltered = Seq(
   "net.databinder" %% "unfiltered-filter"     % unfilteredVersion,
@@ -56,7 +56,8 @@ val unfiltered = Seq(
   "net.databinder" %% "unfiltered-jetty"      % unfilteredVersion,
   "com.jteigen"    %% "linx"                  % "0.2",
   "org.slf4j"      %  "slf4j-api"             % "1.7.7",
-  "org.slf4j"      %  "slf4j-simple"          % "1.7.7"
+  "org.slf4j"      %  "slf4j-simple"          % "1.7.7",
+  "io.mth"         %% "unfiltered-cors"       % "0.3"
 )
 
 lazy val doobieVersion = "0.2.1"

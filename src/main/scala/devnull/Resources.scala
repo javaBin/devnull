@@ -14,18 +14,30 @@ import unfiltered.filter.Plan.Intent
 import unfiltered.filter.request.ContextPath
 import unfiltered.request._
 import unfiltered.response._
+import io.mth.unfiltered.cors.{CorsConfig, Cors}
 
 import scala.language.implicitConversions
 import scalaz.concurrent.Task
 
 class Resources(feedbackResource: FeedbackResource) extends Plan {
 
-  override def intent: Intent = Intent {
+  val cors = Cors(
+    CorsConfig(
+      (origin: String) => {origin.contains("javazone.no")},
+      (method: String) => List("POST", "GET").contains(method),
+      (headers: List[String]) => true,
+      allowCredentials = true,
+      maxAge = Some(120),
+      Nil
+    )
+  )
+
+  override def intent: Intent = cors(Intent {
     case Root() => PingResource.handlePing()
     case Links.AppInfo() => AppInfo.handelAppInfo()
     case Links.Feedbacks(eventId, sessionId) => feedbackResource.handleFeedbacks(eventId, sessionId)
     case _ => failure(NotFound)
-  }
+  })
 
   val Intent = Mapping[String] {
     case ContextPath(_, path) => path
