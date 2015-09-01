@@ -2,9 +2,9 @@ import scala.util.Properties
 
 val commonSettings = Seq(
   organization := "no.java.devnull",
-  scalaVersion := "2.11.6",
+  scalaVersion := "2.11.7",
   name := "devnull",
-  crossScalaVersions := Seq("2.11.6"),
+  crossScalaVersions := Seq("2.11.7"),
   scalacOptions := Seq("-deprecation", "-feature"),
   pomIncludeRepository := {
     x => false
