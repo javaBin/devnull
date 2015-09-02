@@ -28,7 +28,7 @@ class Resources(feedbackResource: FeedbackResource) extends Plan {
       (headers: List[String]) => true,
       allowCredentials = true,
       maxAge = Some(120),
-      Nil
+      "Voter-ID" :: "Content-Type" :: Nil
     )
   )
 
