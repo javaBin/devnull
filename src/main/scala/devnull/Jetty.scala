@@ -1,6 +1,7 @@
 package devnull
 
 import java.io.File
+import java.time.Clock
 
 import com.typesafe.scalalogging.LazyLogging
 import devnull.ems.{EmsHttpClient, CachingEmsService, EmsService}
@@ -34,6 +35,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val xa = DriverManagerTransactor[Task](dbCfg.driver, dbCfg.connectionUrl, dbCfg.username, dbCfg.password)
 
     val repository: FeedbackRepository = new FeedbackRepository()
+    implicit val clock = Clock.systemUTC()
     val emsService: EmsService = new CachingEmsService(new EmsHttpClient(cfg.emsUrl))
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {

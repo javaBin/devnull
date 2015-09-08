@@ -1,11 +1,13 @@
 package devnull.ems
 
+import java.time.Clock
+
 import com.github.benmanes.caffeine.cache.{Cache, Caffeine}
 import devnull.cache.CaffeineExtensions
 
 import scala.concurrent.duration._
 
-class CachingEmsService(emsClient: EmsClient, bufferTime: Int = 10) extends EmsService with CaffeineExtensions {
+class CachingEmsService(emsClient: EmsClient, bufferTime: Int = 10)(implicit clock: Clock) extends EmsService with CaffeineExtensions {
 
   private val cache: Cache[CK, Option[Session]] = Caffeine.newBuilder()
       .expireAfterWrite(2.hours)
@@ -22,7 +24,7 @@ class CachingEmsService(emsClient: EmsClient, bufferTime: Int = 10) extends EmsS
     getSession(eventId, sessionId) match {
       case Some(s) =>
 
-        UtcLocalDateTime.now().isAfter(s.endTime.plusMinutes(bufferTime))
+        UtcLocalDateTime.now().isAfter(s.endTime.minusMinutes(bufferTime))
 
       case None => false
     }
