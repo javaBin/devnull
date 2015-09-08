@@ -21,7 +21,9 @@ object VoterIdentification {
       userAgent <- commit(when { case UserAgent(ua) => ua }.orElse("unknown"))
       ipAddress <- commit(request[HttpServletRequest].map(r => r.remoteAddr))
       originIp <- commit(when { case XRealIP(ff) => ff }.orElse(ipAddress))
-    } yield VoterInfo(voterId, originIp, userAgent)
+    } yield {
+      VoterInfo(voterId, originIp, userAgent.substring(0, Math.min(userAgent.length, 300)))
+    }
 
   object XRealIP extends StringHeader("X-Real-IP")
 
