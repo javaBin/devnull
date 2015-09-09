@@ -35,10 +35,10 @@ class FeedbackResource(
       _ <- POST
       voterInfo <- VoterIdentification.identify()
       contentType <- validContentType
-      parsed <- parseFeedback(contentType, eventId, sessionId, voterInfo)
-      feedback <- fromEither(parsed)
-      _ <- getOrElse(ems.getSession(EventId(eventId), SessionId(sessionId)), NotFound ~> ResponseString("Didn't find the session in ems"))
+      session <- getOrElse(ems.getSession(EventId(eventId), SessionId(sessionId)), NotFound ~> ResponseString("Didn't find the session in ems"))
       _ <- trueOrElse(ems.canRegisterFeedback(EventId(eventId), SessionId(sessionId)), Forbidden ~> ResponseString("Feedback not open yet!"))
+      parsed <- parseFeedback(contentType, session.eventId.id.toString, session.sessionId.id.toString, voterInfo)
+      feedback <- fromEither(parsed)
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
         logger.debug(s"POST => $f from $voterInfo")

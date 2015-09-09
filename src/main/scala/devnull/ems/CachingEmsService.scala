@@ -15,7 +15,9 @@ class CachingEmsService(emsClient: EmsClient, bufferTime: Int = 10)(implicit clo
       .build()
 
   override def getSession(eventId: EventId, sessionId: SessionId): Option[Session] = {
-    cache.get(CK(eventId, sessionId), (ck: CK) => emsClient.session(ck.eventId, ck.sessionId))
+    cache.get(CK(eventId, sessionId), (ck: CK) => emsClient.session(ck.eventId, ck.sessionId)).orElse(
+      cache.get(CK(EventId(sessionId.id), SessionId(eventId.id)), (ck: CK) => emsClient.session(ck.eventId, ck.sessionId))
+    )
   }
 
   case class CK(eventId: EventId, sessionId: SessionId)

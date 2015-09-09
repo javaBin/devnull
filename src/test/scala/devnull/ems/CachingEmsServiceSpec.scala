@@ -13,6 +13,14 @@ class CachingEmsServiceSpec extends FunSpec with Matchers {
     val sId: SessionId = SessionId(UUID.randomUUID())
     implicit val fixedClock: Clock = Clock.fixed(LocalDateTime.of(2015, 9, 8, 10, 0, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC)
 
+    it("should find session when session and event id is flipped (android bug)") {
+      val repository: CachingEmsService = new CachingEmsService(new EmsClient {
+        override def session(eventId: EventId, session: SessionId): Option[Session] = 
+          Some(Session(eId, sId, now().minusMinutes(30), now().minusMinutes(20)))
+      }, 5)
+      repository.getSession(EventId(sId.id), SessionId(eId.id)) should not be empty
+    }
+    
     it("should be open when 20 min has passed the session end time") {
       val repository: CachingEmsService = new CachingEmsService(new EmsClient {
         override def session(eventId: EventId, session: SessionId): Option[Session] = Some(
