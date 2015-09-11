@@ -1,7 +1,7 @@
 package devnull.rest.helpers
 import devnull.rest.helpers.DirectiveHelper.{some, when}
 import unfiltered.directives.Directives.commit
-import unfiltered.request.{HttpRequest, RequestContentType}
+import unfiltered.request.{RequestExtractor, HttpRequest, RequestContentType}
 import unfiltered.response.UnsupportedMediaType
 
 object ContentTypeResolver {
@@ -13,14 +13,26 @@ object ContentTypeResolver {
   def validContentType = commit(
     some{
       val json: PartialFunction[HttpRequest[Any], SupportedContentType] = {
-        case RequestContentType(JsonContentType.value) => JsonContentType
+        case CharsetRequestContentType(JsonContentType.value) => JsonContentType
       }
       val jsonCollection: PartialFunction[HttpRequest[Any], SupportedContentType] = {
-        case RequestContentType(CollectionJsonContentType.value) => CollectionJsonContentType
+        case CharsetRequestContentType(CollectionJsonContentType.value) => CollectionJsonContentType
       }
       List(json, jsonCollection
     ) }.orElse(UnsupportedMediaType)
   )
+}
+
+object CharsetRequestContentType extends RequestHeader("Content-Type")(StringValueParser)
+
+class RequestHeader[A](val name: String)(parser: Iterator[String] => List[A]) extends RequestExtractor[A] {
+  def unapply[T](req: HttpRequest[T]) = parser(req.headers(name)).headOption
+  def apply[T](req: HttpRequest[T]) = parser(req.headers(name)).headOption
+}
+
+object StringValueParser extends (Iterator[String] => List[String]) {
+  def apply(values: Iterator[String]) =
+    values.toList.map(v => v.replace("; charset=.*", ""))
 }
 
 sealed abstract class SupportedContentType(val value: String) {
