@@ -32,7 +32,7 @@ class RequestHeader[A](val name: String)(parser: Iterator[String] => List[A]) ex
 
 object StringValueParser extends (Iterator[String] => List[String]) {
   def apply(values: Iterator[String]) =
-    values.toList.map(v => v.replace("; charset=.*", ""))
+    values.toList.map(v => v.replaceAll("; charset=.*", ""))
 }
 
 sealed abstract class SupportedContentType(val value: String) {
