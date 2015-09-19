@@ -20,6 +20,15 @@ case class Feedback(id: FeedbackId,
                     sessionId: UUID,
                     rating: Ratings)
 
+case class PaperFeedback(
+    id: FeedbackId,
+    created: Timestamp,
+    eventId: UUID,
+    sessionId: UUID,
+    green: Int,
+    yellow: Int,
+    red: Int)
+
 case class DatabaseConfig(driver: String = "org.postgresql.Driver",
                           host: String = "localhost",
                           port: Int = 5432,
