@@ -3,9 +3,6 @@ package devnull.storage
 import doobie.contrib.postgresql.pgtypes._
 import doobie.hi
 import doobie.imports._
-import doobie.util.transactor.DriverManagerTransactor
-
-import scalaz.concurrent.Task
 
 class FeedbackRepository {
 
@@ -63,11 +60,4 @@ class FeedbackRepository {
   def selectFeedbacks(): hi.ConnectionIO[List[Feedback]] = {
     Queries.selectAllFeedbacks.list
   }
-}
-
-object Storage {
-
-  private val config: DatabaseConfig = new DatabaseConfig()
-  val xa = DriverManagerTransactor[Task](config.driver, config.connectionUrl, config.username, config.password)
-
 }
