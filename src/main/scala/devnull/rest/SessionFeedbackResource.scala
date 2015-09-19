@@ -23,7 +23,7 @@ import unfiltered.response._
 
 import scalaz.concurrent.Task
 
-class FeedbackResource(
+class SessionFeedbackResource(
     ems: EmsService,
     feedbackRepository: FeedbackRepository,
     xa: Transactor[Task]) extends LazyLogging {

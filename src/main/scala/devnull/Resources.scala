@@ -3,7 +3,7 @@ package devnull
 import javax.servlet.http.HttpServletRequest
 
 import devnull.ems.EmsService
-import devnull.rest.{AppInfo, FeedbackResource, PingResource}
+import devnull.rest.{AppInfo, SessionFeedbackResource, PingResource}
 import devnull.storage.FeedbackRepository
 import doobie.util.transactor.Transactor
 import linx.Root
@@ -19,7 +19,7 @@ import io.mth.unfiltered.cors.{CorsConfig, Cors}
 import scala.language.implicitConversions
 import scalaz.concurrent.Task
 
-class Resources(feedbackResource: FeedbackResource) extends Plan {
+class Resources(feedbackResource: SessionFeedbackResource) extends Plan {
 
   val cors = Cors(
     CorsConfig(
@@ -57,7 +57,7 @@ class Resources(feedbackResource: FeedbackResource) extends Plan {
 object Resources {
 
   def apply(emsService: EmsService, feedbackRepository: FeedbackRepository, xa: Transactor[Task]) = {
-    val feedbackResource: FeedbackResource = new FeedbackResource(emsService, feedbackRepository, xa)
+    val feedbackResource: SessionFeedbackResource = new SessionFeedbackResource(emsService, feedbackRepository, xa)
     new Resources(feedbackResource)
   }
 
