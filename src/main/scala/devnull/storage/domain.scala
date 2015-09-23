@@ -27,7 +27,8 @@ case class PaperFeedback(
     sessionId: UUID,
     green: Int,
     yellow: Int,
-    red: Int)
+    red: Int,
+    participants: Int)
 
 case class DatabaseConfig(driver: String = "org.postgresql.Driver",
                           host: String = "localhost",

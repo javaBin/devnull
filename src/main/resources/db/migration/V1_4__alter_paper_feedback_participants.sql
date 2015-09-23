@@ -1,0 +1,2 @@
+ALTER TABLE paper_feedback
+ADD COLUMN participants INTEGER DEFAULT 0 NOT NULL;

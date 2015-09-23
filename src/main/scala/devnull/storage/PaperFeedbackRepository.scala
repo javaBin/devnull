@@ -19,14 +19,17 @@ class PaperFeedbackRepository {
             session_id,
             green,
             yellow,
-            red
+            red,
+            participants
         ) VALUES (
             current_timestamp,
             ${fb.eventId},
             ${fb.sessionId},
             ${fb.green},
             ${fb.yellow},
-            ${fb.red}
+            ${fb.red},
+            ${fb.participants}
+
         )
       """.update
     }
@@ -40,7 +43,8 @@ class PaperFeedbackRepository {
             session_id,
             green,
             yellow,
-            red
+            red,
+            participants
         FROM paper_feedback
         WHERE session_id = $sessionId
       """.query[PaperFeedback]

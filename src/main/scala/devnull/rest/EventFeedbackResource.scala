@@ -27,7 +27,7 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
       _ <- withContentType("application/json")
       paperFeedbacks <- toJson[FeedbackWrapper]
     } yield {
-      val pfe = paperFeedbacks.feedbacks.map{ e => PaperFeedback(null, null, UUID.fromString(eventId), UUID.fromString(e.sessionId), e.green, e.yellow, e.red)}
+      val pfe = paperFeedbacks.feedbacks.map{ e => ToPaperFeedback(eventId, e)}
       pfe.foreach{pfb => paperFeedbackRepository.insertPaperFeedback(pfb).transact(xa)}
       Accepted ~> ResponseJson(FeedbackResponse(pfe.size))
     }
@@ -42,7 +42,14 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
   }
 
 }
-case class PaperFeedbackEntry(sessionId: String, green: Int, yellow: Int, red: Int)
+case class PaperFeedbackEntry(sessionId: String, green: Int, yellow: Int, red: Int, participants: Int)
 case class FeedbackWrapper(feedbacks: List[PaperFeedbackEntry])
 case class FeedbackResponse(numInserted: Int)
 
+object ToPaperFeedback {
+  def apply(eventId: String, entry: PaperFeedbackEntry): PaperFeedback = {
+    PaperFeedback(
+      null, null, UUID.fromString(eventId), UUID.fromString(entry.sessionId),
+      entry.green, entry.yellow, entry.red, entry.participants)
+  }
+}
