@@ -3,8 +3,8 @@ package devnull
 import javax.servlet.http.HttpServletRequest
 
 import devnull.ems.EmsService
-import devnull.rest.{AppInfo, SessionFeedbackResource, PingResource}
-import devnull.storage.FeedbackRepository
+import devnull.rest._
+import devnull.storage.{PaperFeedbackRepository, FeedbackRepository}
 import doobie.util.transactor.Transactor
 import linx.Root
 import unfiltered.directives.Directives._
@@ -19,7 +19,7 @@ import io.mth.unfiltered.cors.{CorsConfig, Cors}
 import scala.language.implicitConversions
 import scalaz.concurrent.Task
 
-class Resources(feedbackResource: SessionFeedbackResource) extends Plan {
+class Resources(feedbackResource: SessionFeedbackResource, eventFeedbackResource: EventFeedbackResource) extends Plan {
 
   val cors = Cors(
     CorsConfig(
@@ -35,6 +35,7 @@ class Resources(feedbackResource: SessionFeedbackResource) extends Plan {
   override def intent: Intent = cors(Intent {
     case Root() => PingResource.handlePing()
     case Links.AppInfo() => AppInfo.handelAppInfo()
+    case Links.Event(eventId) => eventFeedbackResource.handleFeedback(eventId)
     case Links.Feedbacks(eventId, sessionId) => feedbackResource.handleFeedbacks(eventId, sessionId)
     case _ => failure(NotFound)
   })
@@ -56,9 +57,14 @@ class Resources(feedbackResource: SessionFeedbackResource) extends Plan {
 
 object Resources {
 
-  def apply(emsService: EmsService, feedbackRepository: FeedbackRepository, xa: Transactor[Task]) = {
+  def apply(
+      emsService: EmsService,
+      feedbackRepository: FeedbackRepository,
+      paperFeedbackRepository: PaperFeedbackRepository,
+      xa: Transactor[Task]) = {
     val feedbackResource: SessionFeedbackResource = new SessionFeedbackResource(emsService, feedbackRepository, xa)
-    new Resources(feedbackResource)
+    val eventFeedbackResource: EventFeedbackResource = new EventFeedbackResource(paperFeedbackRepository, xa)
+    new Resources(feedbackResource, eventFeedbackResource)
   }
 
 }
