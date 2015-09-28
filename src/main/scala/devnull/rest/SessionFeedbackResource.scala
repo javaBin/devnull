@@ -70,8 +70,8 @@ class SessionFeedbackResource(
             OnlineDto(sessionOnline),
             PaperDto(sessionPaper), sessionPaper.map(_.participants).getOrElse(0)),
           conference = FeedbackDto(
-            OnlineDto(4.4, 3.3, 4.2, 1.1, 1654),
-            PaperDto(2032, 604, 122), 150)
+            OnlineDto(0.0, 0.0, 0.0, 0.0, 0),
+            PaperDto(0, 0, 0), 0)
         )
         Ok ~> ResponseJson(response.run)
       }
@@ -100,7 +100,7 @@ object OnlineDto {
 }
 object PaperDto {
   def apply(input: Option[PaperFeedback]): PaperDto = {
-    input.map(i => PaperDto(i.green, i.yellow, i.red))
+    input.map(i => PaperDto(i.ratings.green, i.ratings.yellow, i.ratings.red))
         .getOrElse(PaperDto(0, 0, 0))
   }
 }

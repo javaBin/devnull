@@ -30,10 +30,10 @@ case class PaperFeedback(
     created: Timestamp,
     eventId: UUID,
     sessionId: UUID,
-    green: Int,
-    yellow: Int,
-    red: Int,
+    ratings: PaperRating,
     participants: Int)
+
+case class PaperRating(green: Int, yellow: Int, red: Int)
 
 case class FeedbackResult(
     overall: Double,

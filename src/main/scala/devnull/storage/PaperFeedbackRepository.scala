@@ -25,11 +25,10 @@ class PaperFeedbackRepository {
             current_timestamp,
             ${fb.eventId},
             ${fb.sessionId},
-            ${fb.green},
-            ${fb.yellow},
-            ${fb.red},
+            ${fb.ratings.green},
+            ${fb.ratings.yellow},
+            ${fb.ratings.red},
             ${fb.participants}
-
         )
       """.update
     }
