@@ -62,16 +62,18 @@ class SessionFeedbackResource(
       _ <- getOrElse(ems.getSession(EventId(eventId), SessionId(sessionId)), NotFound ~> ResponseString("Didn't find the session in ems"))
     } yield {
         val sId: UUID = UUID.fromString(sessionId)
+        val eId: UUID = UUID.fromString(eventId)
         val response = for {
           sessionOnline <- feedbackRepository.selectFeedbackForSession(sId).transact(xa)
           sessionPaper <- paperFeedbackRepository.selectFeedbackForSession(sId).transact(xa)
+          avgPaperEvent <- paperFeedbackRepository.selectAvgFeedbackForEvent(eId).transact(xa)
         } yield GivenFeedbackDto(
           session = FeedbackDto(
             OnlineDto(sessionOnline),
-            PaperDto(sessionPaper), sessionPaper.map(_.participants).getOrElse(0)),
+            PaperDto(sessionPaper.map(_.ratings)), sessionPaper.map(_.participants).getOrElse(0)),
           conference = FeedbackDto(
             OnlineDto(0.0, 0.0, 0.0, 0.0, 0),
-            PaperDto(0, 0, 0), 0)
+            PaperDto(avgPaperEvent.map(_._1)), avgPaperEvent.map(_._2).getOrElse(0))
         )
         Ok ~> ResponseJson(response.run)
       }
@@ -99,8 +101,8 @@ object OnlineDto {
   }
 }
 object PaperDto {
-  def apply(input: Option[PaperFeedback]): PaperDto = {
-    input.map(i => PaperDto(i.ratings.green, i.ratings.yellow, i.ratings.red))
+  def apply(input: Option[PaperRating]): PaperDto = {
+    input.map(i => PaperDto(i.green, i.yellow, i.red))
         .getOrElse(PaperDto(0, 0, 0))
   }
 }
