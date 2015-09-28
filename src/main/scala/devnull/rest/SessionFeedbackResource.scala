@@ -59,14 +59,18 @@ class SessionFeedbackResource(
     val getFeedback = for {
       _ <- GET
     } yield {
-        Ok ~> ResponseJson(GivenFeedbackDto(
+        val sId: UUID = UUID.fromString(sessionId)
+        val response = for {
+          sessionOnline <- feedbackRepository.selectFeedbackForSession(sId).transact(xa)
+        } yield GivenFeedbackDto(
           session = FeedbackDto(
-            OnlineDto(2.4, 2.3, 2.2, 2.1, 201),
+            OnlineDto(sessionOnline),
             PaperDto(12, 3, 1), 150),
           conference = FeedbackDto(
             OnlineDto(4.4, 3.3, 4.2, 1.1, 1654),
             PaperDto(2032, 604, 122), 150)
-        ))
+        )
+        Ok ~> ResponseJson(response.run)
       }
     postFeedback | getFeedback
   }
@@ -84,3 +88,12 @@ case class OnlineDto(overall: Double, relevance: Double, content: Double, qualit
 case class PaperDto(green: Int, yellow: Int, red: Int)
 case class FeedbackDto(online: OnlineDto, paper: PaperDto, participants: Int)
 case class GivenFeedbackDto(session: FeedbackDto, conference: FeedbackDto)
+
+object OnlineDto {
+
+  def apply(input: Option[FeedbackResult]): OnlineDto = {
+    input.map(i => OnlineDto(i.overall, i.relevance, i.content, i.quality, i.count))
+        .getOrElse(OnlineDto(0d, 0d, 0d, 0d, 0))
+  }
+
+}
