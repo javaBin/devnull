@@ -59,6 +59,7 @@ class SessionFeedbackResource(
 
     val getFeedback = for {
       _ <- GET
+      _ <- getOrElse(ems.getSession(EventId(eventId), SessionId(sessionId)), NotFound ~> ResponseString("Didn't find the session in ems"))
     } yield {
         val sId: UUID = UUID.fromString(sessionId)
         val response = for {
