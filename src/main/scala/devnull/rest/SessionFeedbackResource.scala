@@ -4,7 +4,7 @@ import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.ems.{SessionId, EventId, EmsService}
+import devnull.ems.{EmsService, EventId, SessionId}
 import devnull.rest.helpers.ContentTypeResolver.validContentType
 import devnull.rest.helpers.DirectiveHelper.trueOrElse
 import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson, withTemplate}
@@ -14,11 +14,11 @@ import devnull.rest.helpers._
 import devnull.storage._
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
-import net.hamnaberg.json.collection.{JsonCollection, Item}
 import net.hamnaberg.json.collection.data.JavaReflectionData
+import net.hamnaberg.json.collection.{Item, JsonCollection}
 import unfiltered.directives.Directive
 import unfiltered.directives.Directives._
-import unfiltered.request.POST
+import unfiltered.request.{GET, POST}
 import unfiltered.response._
 
 import scalaz.concurrent.Task
@@ -31,7 +31,7 @@ class SessionFeedbackResource(
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
   def handleFeedbacks(eventId: String, sessionId: String): ResponseDirective = {
-    val postJson = for {
+    val postFeedback = for {
       _ <- POST
       voterInfo <- VoterIdentification.identify()
       contentType <- validContentType
@@ -55,7 +55,20 @@ class SessionFeedbackResource(
           }
         }
       }
-    postJson
+
+    val getFeedback = for {
+      _ <- GET
+    } yield {
+      Ok ~> ResponseJson(GivenFeedbackDto(
+        session = FeedbackDto(
+          OnlineDto(2.4, 2.3, 2.2, 2.1, 201),
+          PaperDto(12, 3, 1), 150),
+        conference = FeedbackDto(
+          OnlineDto(4.4, 3.3, 4.2, 1.1, 1654),
+          PaperDto(2032, 604, 122), 150)
+      ))
+      }
+    postFeedback | getFeedback
   }
 
   def parseFeedback(contentType: SupportedContentType, eventId:String, sessionId: String, voterInfo: VoterInfo):
@@ -66,3 +79,8 @@ class SessionFeedbackResource(
     }
   }
 }
+
+case class OnlineDto(overall: Double, relevance: Double, content: Double, quality: Double, count: Int)
+case class PaperDto(green: Int, yellow: Int, red: Int)
+case class FeedbackDto(online: OnlineDto, paper: PaperDto, participants: Int)
+case class GivenFeedbackDto(session: FeedbackDto, conference: FeedbackDto)
