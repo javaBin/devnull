@@ -1,5 +1,7 @@
 package devnull.storage
 
+import java.util.UUID
+
 import doobie.contrib.postgresql.pgtypes._
 import doobie.hi
 import doobie.imports._
@@ -51,6 +53,43 @@ class FeedbackRepository {
         .query[(Feedback)]
     }
 
+    def selectAvgForSession(sessionId: UUID): Query0[FeedbackResult] = {
+      sql"""
+        SELECT
+         avg(fb.over) :: FLOAT   AS overall,
+         avg(fb.rele) :: FLOAT   AS relevance,
+         avg(fb.cont) :: FLOAT   AS content,
+         avg(fb.qual) :: FLOAT   AS quality,
+         count(*)     :: INTEGER AS counts
+        FROM (
+        WITH uniquie_feedbacks AS (
+          SELECT
+            f.id,
+            f.voter_id,
+            substring(f.client_info FROM 0 FOR 30),
+            f.session_id       AS session_id,
+            f.rating_overall   AS over,
+            f.rating_relevance AS rele,
+            f.rating_content   AS cont,
+            f.rating_quality   AS qual,
+            row_number()
+              OVER(
+                PARTITION BY f.voter_id, f.session_id
+                ORDER BY f.created DESC
+              ) AS rk
+          FROM feedback f
+        )
+        SELECT uf.*
+        FROM uniquie_feedbacks uf
+        where uf.rk = 1
+        ORDER BY uf.session_id
+        ) fb
+         WHERE session_id = $sessionId
+         GROUP BY fb.session_id
+         ORDER BY counts DESC
+      """.query[FeedbackResult]
+    }
+
   }
 
   def insertFeedback(fb: Feedback): hi.ConnectionIO[FeedbackId] = {
@@ -60,4 +99,9 @@ class FeedbackRepository {
   def selectFeedbacks(): hi.ConnectionIO[List[Feedback]] = {
     Queries.selectAllFeedbacks.list
   }
+
+  def selectFeedbackForSession(sessionId: UUID): hi.ConnectionIO[Option[FeedbackResult]] = {
+    Queries.selectAvgForSession(sessionId).option
+  }
+
 }

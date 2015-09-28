@@ -1,5 +1,7 @@
 package devnull.storage
 
+import java.util.UUID
+
 import devnull.TestTags.DatabaseTag
 import doobie.imports.{Update0, Query0}
 import doobie.util.transactor.DriverManagerTransactor
@@ -23,4 +25,10 @@ class FeedbackRepositoryAnalysisSpec extends FunSpec with Matchers with DoobieAn
 
     insert should matchDatabaseSchemaTypesUpdate
   }
+
+  it("feedback session query must match types in the database") {
+    val query: Query0[FeedbackResult] = repo.Queries.selectAvgForSession(UUID.randomUUID())
+    query should matchDatabaseSchemaTypesQuery[FeedbackResult]
+  }
+
 }

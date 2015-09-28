@@ -35,6 +35,14 @@ case class PaperFeedback(
     red: Int,
     participants: Int)
 
+case class FeedbackResult(
+    overall: Double,
+    relevance: Double,
+    content: Double,
+    quality: Double,
+    count: Int
+    )
+
 case class DatabaseConfig(
     driver: String = "org.postgresql.Driver",
     host: String = "localhost",
