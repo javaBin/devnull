@@ -10,15 +10,20 @@ case class VoterInfo(
     ipAddress: String,
     clientInfo: String)
 
-case class Ratings(overall: Short, relevance: Option[Short], content: Option[Short], quality: Option[Short])
+case class Ratings(
+    overall: Short,
+    relevance: Option[Short],
+    content: Option[Short],
+    quality: Option[Short])
 
 case class FeedbackId(feedbackId: Int)
 
-case class Feedback(id: FeedbackId,
-                    created: Timestamp,
-                    voterInfo: VoterInfo,
-                    sessionId: UUID,
-                    rating: Ratings)
+case class Feedback(
+    id: FeedbackId,
+    created: Timestamp,
+    voterInfo: VoterInfo,
+    sessionId: UUID,
+    rating: Ratings)
 
 case class PaperFeedback(
     id: FeedbackId,
@@ -30,17 +35,18 @@ case class PaperFeedback(
     red: Int,
     participants: Int)
 
-case class DatabaseConfig(driver: String = "org.postgresql.Driver",
-                          host: String = "localhost",
-                          port: Int = 5432,
-                          database: String = "devnull",
-                          username: String = "devnull",
-                          password: String = "devnull") {
+case class DatabaseConfig(
+    driver: String = "org.postgresql.Driver",
+    host: String = "localhost",
+    port: Int = 5432,
+    database: String = "devnull",
+    username: String = "devnull",
+    password: String = "devnull") {
   val connectionUrl = s"jdbc:postgresql://$host:$port/$database"
 }
 
 object DatabaseConfigEnv {
-  
+
   def apply(): DatabaseConfig = {
     DatabaseConfig(
       database = propOrElse("dbName", envOrElse("DB_NAME", "devnull")),
