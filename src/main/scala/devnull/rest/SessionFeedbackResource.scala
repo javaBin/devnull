@@ -26,6 +26,7 @@ import scalaz.concurrent.Task
 class SessionFeedbackResource(
     ems: EmsService,
     feedbackRepository: FeedbackRepository,
+    paperFeedbackRepository: PaperFeedbackRepository,
     xa: Transactor[Task]) extends LazyLogging {
 
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
@@ -62,10 +63,11 @@ class SessionFeedbackResource(
         val sId: UUID = UUID.fromString(sessionId)
         val response = for {
           sessionOnline <- feedbackRepository.selectFeedbackForSession(sId).transact(xa)
+          sessionPaper <- paperFeedbackRepository.selectFeedbackForSession(sId).transact(xa)
         } yield GivenFeedbackDto(
           session = FeedbackDto(
             OnlineDto(sessionOnline),
-            PaperDto(12, 3, 1), 150),
+            PaperDto(sessionPaper), sessionPaper.map(_.participants).getOrElse(0)),
           conference = FeedbackDto(
             OnlineDto(4.4, 3.3, 4.2, 1.1, 1654),
             PaperDto(2032, 604, 122), 150)
@@ -90,10 +92,15 @@ case class FeedbackDto(online: OnlineDto, paper: PaperDto, participants: Int)
 case class GivenFeedbackDto(session: FeedbackDto, conference: FeedbackDto)
 
 object OnlineDto {
-
   def apply(input: Option[FeedbackResult]): OnlineDto = {
     input.map(i => OnlineDto(i.overall, i.relevance, i.content, i.quality, i.count))
         .getOrElse(OnlineDto(0d, 0d, 0d, 0d, 0))
   }
-
 }
+object PaperDto {
+  def apply(input: Option[PaperFeedback]): PaperDto = {
+    input.map(i => PaperDto(i.green, i.yellow, i.red))
+        .getOrElse(PaperDto(0, 0, 0))
+  }
+}
+
