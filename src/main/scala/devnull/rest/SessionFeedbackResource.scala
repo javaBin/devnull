@@ -66,13 +66,14 @@ class SessionFeedbackResource(
         val response = for {
           sessionOnline <- feedbackRepository.selectFeedbackForSession(sId).transact(xa)
           sessionPaper <- paperFeedbackRepository.selectFeedbackForSession(sId).transact(xa)
+          eventOnline <- feedbackRepository.selectFeedbackForEvent(eId).transact(xa)
           avgPaperEvent <- paperFeedbackRepository.selectAvgFeedbackForEvent(eId).transact(xa)
         } yield GivenFeedbackDto(
           session = FeedbackDto(
             OnlineDto(sessionOnline),
             PaperDto(sessionPaper.map(_.ratings)), sessionPaper.map(_.participants).getOrElse(0)),
           conference = FeedbackDto(
-            OnlineDto(0.0, 0.0, 0.0, 0.0, 0),
+            OnlineDto(eventOnline),
             PaperDto(avgPaperEvent.map(_._1)), avgPaperEvent.map(_._2).getOrElse(0))
         )
         Ok ~> ResponseJson(response.run)
