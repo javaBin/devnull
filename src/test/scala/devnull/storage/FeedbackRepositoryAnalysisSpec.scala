@@ -31,4 +31,9 @@ class FeedbackRepositoryAnalysisSpec extends FunSpec with Matchers with DoobieAn
     query should matchDatabaseSchemaTypesQuery[FeedbackResult]
   }
 
+  it("feedback event query must match types in the database") {
+    val query: Query0[FeedbackResult] = repo.Queries.selectAvgForEvent(UUID.randomUUID())
+    query should matchDatabaseSchemaTypesQuery[FeedbackResult]
+  }
+
 }
