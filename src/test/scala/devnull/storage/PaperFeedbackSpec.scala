@@ -1,9 +1,11 @@
 package devnull.storage
 
+import java.util.UUID
+
 import devnull.TestTags.DatabaseTag
 import doobie.imports._
 import doobie.util.transactor.DriverManagerTransactor
-import org.scalatest.{Matchers, BeforeAndAfter, FunSpec}
+import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 import scalaz.concurrent.Task
 
@@ -30,5 +32,23 @@ class PaperFeedbackSpec extends FunSpec with BeforeAndAfter with Matchers with D
 
       sessionFeedback should not be empty
     }
+
+    it("should query for avg feedback for an event", DatabaseTag) {
+      val eventId: UUID = UUID.randomUUID
+      val resultOfOne: PaperFeedback = FeedbackTestData.createPaperFeedback(eventId = eventId)
+
+      repo.insertPaperFeedback(resultOfOne).transact(xa).run
+      repo.insertPaperFeedback(FeedbackTestData.createPaperFeedback(eventId = eventId)).transact(xa).run
+
+      val result: Option[(PaperRating, Int)] = repo.selectAvgFeedbackForEvent(eventId).transact(xa).run
+
+      result should not be empty
+      val (ratings, participants) = result.get
+      participants should be (resultOfOne.participants)
+      ratings.green should be (resultOfOne.ratings.green)
+      ratings.yellow should be (resultOfOne.ratings.yellow)
+      ratings.red should be (resultOfOne.ratings.red)
+    }
   }
+
 }

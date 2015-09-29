@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest
 import devnull.rest.helpers.ContentTypeResolver.withContentType
 import devnull.rest.helpers.EitherDirective._
 import devnull.rest.helpers.ResponseWrites.ResponseJson
-import devnull.storage.{PaperFeedback, PaperFeedbackRepository}
+import devnull.storage.{PaperRating, PaperFeedback, PaperFeedbackRepository}
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
 import org.json4s._
@@ -49,7 +49,11 @@ case class FeedbackResponse(numInserted: Int)
 object ToPaperFeedback {
   def apply(eventId: String, entry: PaperFeedbackEntry): PaperFeedback = {
     PaperFeedback(
-      null, null, UUID.fromString(eventId), UUID.fromString(entry.sessionId),
-      entry.green, entry.yellow, entry.red, entry.participants)
+      null,
+      null,
+      UUID.fromString(eventId),
+      UUID.fromString(entry.sessionId),
+      PaperRating(entry.green, entry.yellow, entry.red),
+      entry.participants)
   }
 }

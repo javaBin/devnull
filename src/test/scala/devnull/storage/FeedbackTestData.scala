@@ -14,7 +14,13 @@ object FeedbackTestData {
     Feedback(null, null, info, session, ratings)
   }
 
-  def createPaperFeedback() = PaperFeedback(null, null, UUID.randomUUID(), UUID.randomUUID(), 1, 2, 3, 4)
+  def createPaperFeedback(eventId: UUID = UUID.randomUUID()) = PaperFeedback(
+    null,
+    null,
+    eventId,
+    UUID.randomUUID(),
+    PaperRating(1, 2, 3),
+    4)
 
   private def rating() = {
     Some(random.nextInt(5).toShort)

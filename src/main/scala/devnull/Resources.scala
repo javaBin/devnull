@@ -62,7 +62,8 @@ object Resources {
       feedbackRepository: FeedbackRepository,
       paperFeedbackRepository: PaperFeedbackRepository,
       xa: Transactor[Task]) = {
-    val feedbackResource: SessionFeedbackResource = new SessionFeedbackResource(emsService, feedbackRepository, xa)
+    val feedbackResource: SessionFeedbackResource = new SessionFeedbackResource(
+      emsService, feedbackRepository, paperFeedbackRepository, xa)
     val eventFeedbackResource: EventFeedbackResource = new EventFeedbackResource(paperFeedbackRepository, xa)
     new Resources(feedbackResource, eventFeedbackResource)
   }

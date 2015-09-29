@@ -25,11 +25,10 @@ class PaperFeedbackRepository {
             current_timestamp,
             ${fb.eventId},
             ${fb.sessionId},
-            ${fb.green},
-            ${fb.yellow},
-            ${fb.red},
+            ${fb.ratings.green},
+            ${fb.ratings.yellow},
+            ${fb.ratings.red},
             ${fb.participants}
-
         )
       """.update
     }
@@ -49,6 +48,18 @@ class PaperFeedbackRepository {
         WHERE session_id = $sessionId
       """.query[PaperFeedback]
     }
+
+    def selectAvgFeedbackForEvent(eventId: UUID): Query0[(PaperRating, Int)] = {
+      sql"""
+        SELECT
+            avg(green)        :: INTEGER,
+            avg(yellow)       :: INTEGER,
+            avg(red)          :: INTEGER,
+            avg(participants) :: INTEGER
+        FROM paper_feedback
+        WHERE event_id = $eventId
+      """.query[(PaperRating, Int)]
+    }
   }
 
   def insertPaperFeedback(fb: PaperFeedback): hi.ConnectionIO[FeedbackId] = {
@@ -59,4 +70,7 @@ class PaperFeedbackRepository {
     Queries.selectFeedback(sessionId).option
   }
 
+  def selectAvgFeedbackForEvent(eventId: UUID): hi.ConnectionIO[Option[(PaperRating, Int)]] = {
+    Queries.selectAvgFeedbackForEvent(eventId).option
+  }
 }

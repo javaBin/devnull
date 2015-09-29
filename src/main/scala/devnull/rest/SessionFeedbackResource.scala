@@ -4,7 +4,7 @@ import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.ems.{SessionId, EventId, EmsService}
+import devnull.ems.{EmsService, EventId, SessionId}
 import devnull.rest.helpers.ContentTypeResolver.validContentType
 import devnull.rest.helpers.DirectiveHelper.trueOrElse
 import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson, withTemplate}
@@ -14,11 +14,11 @@ import devnull.rest.helpers._
 import devnull.storage._
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
-import net.hamnaberg.json.collection.{JsonCollection, Item}
 import net.hamnaberg.json.collection.data.JavaReflectionData
+import net.hamnaberg.json.collection.{Item, JsonCollection}
 import unfiltered.directives.Directive
 import unfiltered.directives.Directives._
-import unfiltered.request.POST
+import unfiltered.request.{GET, POST}
 import unfiltered.response._
 
 import scalaz.concurrent.Task
@@ -26,12 +26,13 @@ import scalaz.concurrent.Task
 class SessionFeedbackResource(
     ems: EmsService,
     feedbackRepository: FeedbackRepository,
+    paperFeedbackRepository: PaperFeedbackRepository,
     xa: Transactor[Task]) extends LazyLogging {
 
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
   def handleFeedbacks(eventId: String, sessionId: String): ResponseDirective = {
-    val postJson = for {
+    val postFeedback = for {
       _ <- POST
       voterInfo <- VoterIdentification.identify()
       contentType <- validContentType
@@ -55,7 +56,29 @@ class SessionFeedbackResource(
           }
         }
       }
-    postJson
+
+    val getFeedback = for {
+      _ <- GET
+      _ <- getOrElse(ems.getSession(EventId(eventId), SessionId(sessionId)), NotFound ~> ResponseString("Didn't find the session in ems"))
+    } yield {
+        val sId: UUID = UUID.fromString(sessionId)
+        val eId: UUID = UUID.fromString(eventId)
+        val response = for {
+          sessionOnline <- feedbackRepository.selectFeedbackForSession(sId).transact(xa)
+          sessionPaper <- paperFeedbackRepository.selectFeedbackForSession(sId).transact(xa)
+          eventOnline <- feedbackRepository.selectFeedbackForEvent(eId).transact(xa)
+          avgPaperEvent <- paperFeedbackRepository.selectAvgFeedbackForEvent(eId).transact(xa)
+        } yield GivenFeedbackDto(
+          session = FeedbackDto(
+            OnlineDto(sessionOnline),
+            PaperDto(sessionPaper.map(_.ratings)), sessionPaper.map(_.participants).getOrElse(0)),
+          conference = FeedbackDto(
+            OnlineDto(eventOnline),
+            PaperDto(avgPaperEvent.map(_._1)), avgPaperEvent.map(_._2).getOrElse(0))
+        )
+        Ok ~> ResponseJson(response.run)
+      }
+    postFeedback | getFeedback
   }
 
   def parseFeedback(contentType: SupportedContentType, eventId:String, sessionId: String, voterInfo: VoterInfo):
@@ -66,3 +89,22 @@ class SessionFeedbackResource(
     }
   }
 }
+
+case class OnlineDto(overall: Double, relevance: Double, content: Double, quality: Double, count: Int)
+case class PaperDto(green: Int, yellow: Int, red: Int)
+case class FeedbackDto(online: OnlineDto, paper: PaperDto, participants: Int)
+case class GivenFeedbackDto(session: FeedbackDto, conference: FeedbackDto)
+
+object OnlineDto {
+  def apply(input: Option[FeedbackResult]): OnlineDto = {
+    input.map(i => OnlineDto(i.overall, i.relevance, i.content, i.quality, i.count))
+        .getOrElse(OnlineDto(0d, 0d, 0d, 0d, 0))
+  }
+}
+object PaperDto {
+  def apply(input: Option[PaperRating]): PaperDto = {
+    input.map(i => PaperDto(i.green, i.yellow, i.red))
+        .getOrElse(PaperDto(0, 0, 0))
+  }
+}
+
