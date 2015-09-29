@@ -60,7 +60,7 @@ class FeedbackRepository {
          avg(fb.rele) :: FLOAT   AS relevance,
          avg(fb.cont) :: FLOAT   AS content,
          avg(fb.qual) :: FLOAT   AS quality,
-         count(*)     :: INTEGER AS counts
+         count(*)     :: FLOAT   AS counts
         FROM (
         WITH uniquie_feedbacks AS (
           SELECT
@@ -97,7 +97,7 @@ class FeedbackRepository {
         avg(fb.rele) :: FLOAT   AS relevance,
         avg(fb.cont) :: FLOAT   AS content,
         avg(fb.qual) :: FLOAT   AS quality,
-        count(*)     :: INTEGER AS counts
+        count(*)     :: FLOAT   AS counts
        FROM (
        WITH uniquie_feedbacks AS (
          SELECT

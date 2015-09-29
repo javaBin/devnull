@@ -9,7 +9,7 @@ import org.scalatest.{BeforeAndAfter, Matchers, FunSpec}
 
 import scalaz.concurrent.Task
 
-class PaperFeedbackAnalysisSpec extends FunSpec with BeforeAndAfter  with Matchers with DoobieAnalysisMatcher with DatabaseMigration  {
+class PaperFeedbackAnalysisRepositorySpec extends FunSpec with BeforeAndAfter  with Matchers with DoobieAnalysisMatcher with DatabaseMigration  {
 
   val cfg = DatabaseConfigEnv()
   implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)
@@ -26,8 +26,8 @@ class PaperFeedbackAnalysisSpec extends FunSpec with BeforeAndAfter  with Matche
     }
 
     it("query for event must match types in the database", DatabaseTag) {
-      val query: Query0[(PaperRating, Int)] = repo.Queries.selectAvgFeedbackForEvent(UUID.randomUUID())
-      query should matchDatabaseSchemaTypesQuery[(PaperRating, Int)]
+      val query: Query0[(PaperRatingResult, Option[Double])] = repo.Queries.selectAvgFeedbackForEvent(UUID.randomUUID())
+      query should matchDatabaseSchemaTypesQuery[(PaperRatingResult, Option[Double])]
     }
 
     it("insert must match types in the database", DatabaseTag) {

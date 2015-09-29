@@ -49,12 +49,12 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers w
       val result: Option[FeedbackResult] = repo.selectFeedbackForSession(sessionId).transact(xa).run
 
       result should not be empty
-      result.get.count should be(2)
+      result.get.count should be(Some(2))
 
-      result.get.overall should be(3.5 +- 0.01)
-      result.get.content should be(3.5 +- 0.01)
-      result.get.quality should be(3.5 +- 0.01)
-      result.get.relevance should be(3.5 +- 0.01)
+      result.get.overall should be(Some(3.5))
+      result.get.content should be(Some(3.5))
+      result.get.quality should be(Some(3.5))
+      result.get.relevance should be(Some(3.5))
     }
 
     it("should get average of event feedback") {
@@ -75,16 +75,17 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers w
         t5 <- repo.insertFeedback(FeedbackTestData.createFeedback(sessionIdTwo)).transact(xa)
 
         // Test data that we should not match on
-        t2 <- paperRepo.insertPaperFeedback(PaperFeedback(null, null, eventIdTwo, sessionIdThree, PaperRating(20, 10, 5), 100)).transact(xa)
-        t5 <- repo.insertFeedback(FeedbackTestData.createFeedback(sessionIdThree)).transact(xa)
+        t6 <- paperRepo.insertPaperFeedback(PaperFeedback(null, null, eventIdTwo, sessionIdThree, PaperRating(20, 10, 5), 100)).transact(xa)
+        t7 <- repo.insertFeedback(FeedbackTestData.createFeedback(sessionIdThree)).transact(xa)
+
+        t8 <- repo.insertFeedback(FeedbackTestData.createFeedback(voterId = "12345")).transact(xa)
       } yield "done"
       insert.run
 
       val result = repo.selectFeedbackForEvent(eventIdOne).transact(xa).run
 
-      println(result.get)
       result should not be empty
-      result.get.count should be (2)
+      result.get.count should be (Some(2))
     }
   }
 

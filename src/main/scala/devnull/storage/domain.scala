@@ -34,13 +34,14 @@ case class PaperFeedback(
     participants: Int)
 
 case class PaperRating(green: Int, yellow: Int, red: Int)
+case class PaperRatingResult(green: Option[Double], yellow: Option[Double], red: Option[Double])
 
 case class FeedbackResult(
-    overall: Double,
-    relevance: Double,
-    content: Double,
-    quality: Double,
-    count: Int
+    overall: Option[Double],
+    relevance: Option[Double],
+    content: Option[Double],
+    quality: Option[Double],
+    count: Option[Double]
     )
 
 case class DatabaseConfig(

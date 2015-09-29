@@ -49,16 +49,16 @@ class PaperFeedbackRepository {
       """.query[PaperFeedback]
     }
 
-    def selectAvgFeedbackForEvent(eventId: UUID): Query0[(PaperRating, Int)] = {
+    def selectAvgFeedbackForEvent(eventId: UUID): Query0[(PaperRatingResult, Option[Double])] = {
       sql"""
         SELECT
-            avg(green)        :: INTEGER,
-            avg(yellow)       :: INTEGER,
-            avg(red)          :: INTEGER,
-            avg(participants) :: INTEGER
+            avg(green)        :: FLOAT,
+            avg(yellow)       :: FLOAT,
+            avg(red)          :: FLOAT,
+            avg(participants) :: FLOAT
         FROM paper_feedback
         WHERE event_id = $eventId
-      """.query[(PaperRating, Int)]
+      """.query[(PaperRatingResult, Option[Double])]
     }
   }
 
@@ -70,7 +70,7 @@ class PaperFeedbackRepository {
     Queries.selectFeedback(sessionId).option
   }
 
-  def selectAvgFeedbackForEvent(eventId: UUID): hi.ConnectionIO[Option[(PaperRating, Int)]] = {
+  def selectAvgFeedbackForEvent(eventId: UUID): hi.ConnectionIO[Option[(PaperRatingResult, Option[Double])]] = {
     Queries.selectAvgFeedbackForEvent(eventId).option
   }
 }
