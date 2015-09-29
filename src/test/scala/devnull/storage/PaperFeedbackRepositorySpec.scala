@@ -40,14 +40,14 @@ class PaperFeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Match
       repo.insertPaperFeedback(resultOfOne).transact(xa).run
       repo.insertPaperFeedback(FeedbackTestData.createPaperFeedback(eventId = eventId)).transact(xa).run
 
-      val result: Option[(PaperRating, Int)] = repo.selectAvgFeedbackForEvent(eventId).transact(xa).run
+      val result: Option[(PaperRatingResult, Option[Double])] = repo.selectAvgFeedbackForEvent(eventId).transact(xa).run
 
       result should not be empty
       val (ratings, participants) = result.get
-      participants should be (resultOfOne.participants)
-      ratings.green should be (resultOfOne.ratings.green)
-      ratings.yellow should be (resultOfOne.ratings.yellow)
-      ratings.red should be (resultOfOne.ratings.red)
+      participants should be (Some(resultOfOne.participants))
+      ratings.green should be (Some(resultOfOne.ratings.green))
+      ratings.yellow should be (Some(resultOfOne.ratings.yellow))
+      ratings.red should be (Some(resultOfOne.ratings.red))
     }
   }
 

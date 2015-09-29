@@ -26,8 +26,8 @@ class PaperFeedbackAnalysisRepositorySpec extends FunSpec with BeforeAndAfter  w
     }
 
     it("query for event must match types in the database", DatabaseTag) {
-      val query: Query0[(PaperRating, Int)] = repo.Queries.selectAvgFeedbackForEvent(UUID.randomUUID())
-      query should matchDatabaseSchemaTypesQuery[(PaperRating, Int)]
+      val query: Query0[(PaperRatingResult, Option[Double])] = repo.Queries.selectAvgFeedbackForEvent(UUID.randomUUID())
+      query should matchDatabaseSchemaTypesQuery[(PaperRatingResult, Option[Double])]
     }
 
     it("insert must match types in the database", DatabaseTag) {

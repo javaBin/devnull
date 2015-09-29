@@ -68,14 +68,22 @@ class SessionFeedbackResource(
           sessionPaper <- paperFeedbackRepository.selectFeedbackForSession(sId).transact(xa)
           eventOnline <- feedbackRepository.selectFeedbackForEvent(eId).transact(xa)
           avgPaperEvent <- paperFeedbackRepository.selectAvgFeedbackForEvent(eId).transact(xa)
-        } yield GivenFeedbackDto(
-          session = FeedbackDto(
-            OnlineDto(sessionOnline),
-            PaperDto(sessionPaper.map(_.ratings)), sessionPaper.map(_.participants).getOrElse(0)),
-          conference = FeedbackDto(
-            OnlineDto(eventOnline),
-            PaperDto(avgPaperEvent.map(_._1)), avgPaperEvent.map(_._2).getOrElse(0))
-        )
+        } yield {
+            val (paperDto: PaperDto, participants: Int) = avgPaperEvent.map { case (f: PaperRatingResult, i: Option[Double]) =>
+              (PaperDto(f.green.getOrElse(0), f.yellow.getOrElse(0), f.red.getOrElse(0)), i.getOrElse(0d).toInt)
+            }.getOrElse((PaperDto(0, 0, 0), 0))
+            GivenFeedbackDto(
+              session = FeedbackDto(
+                OnlineDto(sessionOnline),
+                sessionPaper.map(f => PaperDto(f.ratings.green, f.ratings.yellow, f.ratings.red)).getOrElse(PaperDto(0, 0, 0)),
+                sessionPaper.map(_.participants).getOrElse(0)),
+              conference = FeedbackDto(
+                OnlineDto(sessionOnline),
+                paperDto,
+                participants
+              )
+            )
+          }
         Ok ~> ResponseJson(response.run)
       }
     postFeedback | getFeedback
@@ -90,21 +98,16 @@ class SessionFeedbackResource(
   }
 }
 
-case class OnlineDto(overall: Double, relevance: Double, content: Double, quality: Double, count: Int)
-case class PaperDto(green: Int, yellow: Int, red: Int)
+case class OnlineDto(overall: Double, relevance: Double, content: Double, quality: Double, count: Double)
+case class PaperDto(green: Double, yellow: Double, red: Double)
 case class FeedbackDto(online: OnlineDto, paper: PaperDto, participants: Int)
 case class GivenFeedbackDto(session: FeedbackDto, conference: FeedbackDto)
 
 object OnlineDto {
   def apply(input: Option[FeedbackResult]): OnlineDto = {
-    input.map(i => OnlineDto(i.overall, i.relevance, i.content, i.quality, i.count))
+    input.map(i => OnlineDto(i.overall.getOrElse(0), i.relevance.getOrElse(0), i.content.getOrElse(0), i.quality.getOrElse(0), i.count.getOrElse(0)))
         .getOrElse(OnlineDto(0d, 0d, 0d, 0d, 0))
   }
 }
-object PaperDto {
-  def apply(input: Option[PaperRating]): PaperDto = {
-    input.map(i => PaperDto(i.green, i.yellow, i.red))
-        .getOrElse(PaperDto(0, 0, 0))
-  }
-}
+
 
