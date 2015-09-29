@@ -9,7 +9,7 @@ import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 import scalaz.concurrent.Task
 
-class PaperFeedbackSpec extends FunSpec with BeforeAndAfter with Matchers with DatabaseMigration  {
+class PaperFeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers with DatabaseMigration  {
 
   val cfg = DatabaseConfigEnv()
   val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)

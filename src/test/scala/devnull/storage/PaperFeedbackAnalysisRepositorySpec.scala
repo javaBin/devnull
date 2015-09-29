@@ -9,7 +9,7 @@ import org.scalatest.{BeforeAndAfter, Matchers, FunSpec}
 
 import scalaz.concurrent.Task
 
-class PaperFeedbackAnalysisSpec extends FunSpec with BeforeAndAfter  with Matchers with DoobieAnalysisMatcher with DatabaseMigration  {
+class PaperFeedbackAnalysisRepositorySpec extends FunSpec with BeforeAndAfter  with Matchers with DoobieAnalysisMatcher with DatabaseMigration  {
 
   val cfg = DatabaseConfigEnv()
   implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)
