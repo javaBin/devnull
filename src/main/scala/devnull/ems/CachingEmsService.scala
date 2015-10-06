@@ -9,18 +9,18 @@ import scala.concurrent.duration._
 
 class CachingEmsService(emsClient: EmsClient, bufferTime: Int = 10)(implicit clock: Clock) extends EmsService with CaffeineExtensions {
 
-  private val cache: Cache[CK, Option[Session]] = Caffeine.newBuilder()
+  private val cache: Cache[CacheKey, Option[Session]] = Caffeine.newBuilder()
       .expireAfterWrite(2.hours)
       .maximumSize(200)
       .build()
 
   override def getSession(eventId: EventId, sessionId: SessionId): Option[Session] = {
-    cache.get(CK(eventId, sessionId), (ck: CK) => emsClient.session(ck.eventId, ck.sessionId)).orElse(
-      cache.get(CK(EventId(sessionId.id), SessionId(eventId.id)), (ck: CK) => emsClient.session(ck.eventId, ck.sessionId))
+    cache.get(CacheKey(eventId, sessionId), (ck: CacheKey) => emsClient.session(ck.eventId, ck.sessionId)).orElse(
+      cache.get(CacheKey(EventId(sessionId.id), SessionId(eventId.id)), (ck: CacheKey) => emsClient.session(ck.eventId, ck.sessionId))
     )
   }
 
-  case class CK(eventId: EventId, sessionId: SessionId)
+  case class CacheKey(eventId: EventId, sessionId: SessionId)
 
   override def canRegisterFeedback(eventId: EventId, sessionId: SessionId): Boolean = {
     getSession(eventId, sessionId) match {
