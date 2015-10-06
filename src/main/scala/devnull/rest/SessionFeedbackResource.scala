@@ -64,9 +64,9 @@ class SessionFeedbackResource(
         val sId: UUID = UUID.fromString(sessionId)
         val eId: UUID = UUID.fromString(eventId)
         val response = for {
-          sessionOnline <- feedbackRepository.selectFeedbackForSession(sId).transact(xa)
+          sessionOnlineFeedback <- feedbackRepository.selectFeedbackForSession(sId).transact(xa)
           sessionPaper <- paperFeedbackRepository.selectFeedbackForSession(sId).transact(xa)
-          eventOnline <- feedbackRepository.selectFeedbackForEvent(eId).transact(xa)
+          avgConferenceOnlineFeedback <- feedbackRepository.selectFeedbackForEvent(eId).transact(xa)
           avgPaperEvent <- paperFeedbackRepository.selectAvgFeedbackForEvent(eId).transact(xa)
         } yield {
             val (paperDto: PaperDto, participants: Int) = avgPaperEvent.map { case (f: PaperRatingResult, i: Option[Double]) =>
@@ -74,11 +74,11 @@ class SessionFeedbackResource(
             }.getOrElse((PaperDto(0, 0, 0), 0))
             GivenFeedbackDto(
               session = FeedbackDto(
-                OnlineDto(sessionOnline),
+                OnlineDto(sessionOnlineFeedback),
                 sessionPaper.map(f => PaperDto(f.ratings.green, f.ratings.yellow, f.ratings.red)).getOrElse(PaperDto(0, 0, 0)),
                 sessionPaper.map(_.participants).getOrElse(0)),
               conference = FeedbackDto(
-                OnlineDto(sessionOnline),
+                OnlineDto(avgConferenceOnlineFeedback),
                 paperDto,
                 participants
               )
