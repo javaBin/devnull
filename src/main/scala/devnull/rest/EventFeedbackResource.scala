@@ -6,16 +6,17 @@ import javax.servlet.http.HttpServletRequest
 import devnull.rest.helpers.ContentTypeResolver.withContentTypes
 import devnull.rest.helpers.EitherDirective._
 import devnull.rest.helpers.ResponseWrites.ResponseJson
-import devnull.storage.{PaperRating, PaperFeedback, PaperFeedbackRepository}
+import devnull.storage.{PaperFeedback, PaperFeedbackRepository, PaperRating}
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
 import org.json4s._
 import org.json4s.native.JsonMethods
 import unfiltered.directives.Directive
 import unfiltered.directives.Directives._
-import unfiltered.request.POST
-import unfiltered.response.{Accepted, ResponseFunction}
+import unfiltered.request.{POST, StringHeader}
+import unfiltered.response.{Accepted, ResponseFunction, Unauthorized}
 
+import scala.util.Properties._
 import scalaz.concurrent.Task
 
 class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa: Transactor[Task]) {
@@ -25,10 +26,11 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
     for {
       _ <- POST
       _ <- withContentTypes(List(MIMEType.Json))
+      _ <- hasAdminTokenToken
       paperFeedbacks <- toJson[FeedbackWrapper]
     } yield {
-      val pfe = paperFeedbacks.feedbacks.map{ e => ToPaperFeedback(eventId, e)}
-      pfe.foreach{pfb => paperFeedbackRepository.insertPaperFeedback(pfb).transact(xa).run}
+      val pfe = paperFeedbacks.feedbacks.map { e => ToPaperFeedback(eventId, e) }
+      pfe.foreach { pfb => paperFeedbackRepository.insertPaperFeedback(pfb).transact(xa).run }
       Accepted ~> ResponseJson(FeedbackResponse(pfe.size))
     }
   }
@@ -41,7 +43,15 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
     })
   }
 
+  def hasAdminTokenToken = commit {
+    val secret: Option[String] = propOrNone("admin-secret").orElse(envOrNone("ADMIN_SECRET"))
+    when { case Token(token) if secret.contains(token) => () }.orElse(Unauthorized)
+  }
+
+  case object Token extends StringHeader("Token")
+
 }
+
 case class PaperFeedbackEntry(sessionId: String, green: Int, yellow: Int, red: Int, participants: Int)
 case class FeedbackWrapper(feedbacks: List[PaperFeedbackEntry])
 case class FeedbackResponse(numInserted: Int)
