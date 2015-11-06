@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.LazyLogging
 import devnull.ems.{EmsService, EventId, SessionId}
-import devnull.rest.helpers.ContentTypeResolver.validContentType
+import devnull.rest.helpers.ContentTypeResolver._
 import devnull.rest.helpers.DirectiveHelper.trueOrElse
 import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson, withTemplate}
 import devnull.rest.helpers.JsonCollectionConverter.toFeedback
@@ -35,7 +35,7 @@ class SessionFeedbackResource(
     val postFeedback = for {
       _ <- POST
       voterInfo <- VoterIdentification.identify()
-      contentType <- validContentType
+      contentType <- withContentTypes(List(MIMEType.Json, MIMEType.CollectionJson))
       session <- getOrElse(ems.getSession(EventId(eventId), SessionId(sessionId)), NotFound ~> ResponseString("Didn't find the session in ems"))
       _ <- trueOrElse(ems.canRegisterFeedback(EventId(eventId), SessionId(sessionId)), Forbidden ~> ResponseString("Feedback not open yet!"))
       parsed <- parseFeedback(contentType, session.eventId.id.toString, session.sessionId.id.toString, voterInfo)
@@ -46,8 +46,8 @@ class SessionFeedbackResource(
         val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
         Accepted ~> {
           contentType match {
-            case JsonContentType => ResponseJson(feedbackId)
-            case CollectionJsonContentType => {
+            case MIMEType("application", "json", _) => ResponseJson(feedbackId)
+            case MIMEType("application", "vnd.collection+json", _) => {
               implicit val formats = org.json4s.DefaultFormats
               implicit val extractor = new JavaReflectionData[FeedbackId]
               val item = Item(java.net.URI.create(""), feedbackId, Nil)
@@ -88,12 +88,11 @@ class SessionFeedbackResource(
       }
     postFeedback | getFeedback
   }
-
-  def parseFeedback(contentType: SupportedContentType, eventId:String, sessionId: String, voterInfo: VoterInfo):
+  def parseFeedback(contentType: MIMEType, eventId:String, sessionId: String, voterInfo: VoterInfo):
   EitherDirective[Either[Throwable, Option[Feedback]]] = {
     contentType match {
-      case CollectionJsonContentType => withTemplate(template => toFeedback(template, eventId, sessionId, voterInfo))
-      case JsonContentType => withJson { rating: Ratings => Feedback(null, null, voterInfo, UUID.fromString(sessionId), rating) }
+      case MIMEType("application", "json", _) => withJson { rating: Ratings => Feedback(null, null, voterInfo, UUID.fromString(sessionId), rating) }
+      case MIMEType("application", "vnd.collection+json", _) => withTemplate(template => toFeedback(template, eventId, sessionId, voterInfo))
     }
   }
 }
