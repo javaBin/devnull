@@ -3,7 +3,7 @@ package devnull.rest
 import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
-import devnull.rest.helpers.ContentTypeResolver.withContentType
+import devnull.rest.helpers.ContentTypeResolver.withContentTypes
 import devnull.rest.helpers.EitherDirective._
 import devnull.rest.helpers.ResponseWrites.ResponseJson
 import devnull.storage.{PaperRating, PaperFeedback, PaperFeedbackRepository}
@@ -24,7 +24,7 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
   def handleFeedback(eventId: String): ResponseDirective = {
     for {
       _ <- POST
-      _ <- withContentType("application/json")
+      _ <- withContentTypes(List(MIMEType.Json))
       paperFeedbacks <- toJson[FeedbackWrapper]
     } yield {
       val pfe = paperFeedbacks.feedbacks.map{ e => ToPaperFeedback(eventId, e)}
