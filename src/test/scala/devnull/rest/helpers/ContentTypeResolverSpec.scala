@@ -47,7 +47,7 @@ class ContentTypeResolverSpec extends FunSpec with Matchers {
     }
   }
 
-  class HttpRequestStub extends HttpRequest {
+  class HttpRequestStub() extends HttpRequest[Unit](()) {
     override def inputStream: InputStream = ???
 
     override def headerNames: Iterator[String] = ???
