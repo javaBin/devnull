@@ -22,7 +22,8 @@ class FeedbackRepository {
            rating_overall,
            rating_relevance,
            rating_content,
-           rating_quality
+           rating_quality,
+           comments
        ) VALUES (
            current_timestamp,
            ${fb.voterInfo.clientInfo},
@@ -32,7 +33,8 @@ class FeedbackRepository {
            ${fb.rating.overall},
            ${fb.rating.relevance},
            ${fb.rating.content},
-           ${fb.rating.quality}
+           ${fb.rating.quality},
+           ${fb.rating.comments}
        )""".update
     }
 
@@ -48,7 +50,8 @@ class FeedbackRepository {
            rating_overall,
            rating_relevance,
            rating_content,
-           rating_quality
+           rating_quality,
+           comments
        FROM feedback"""
         .query[(Feedback)]
     }
