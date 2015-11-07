@@ -62,7 +62,7 @@ class FeedbackRepository {
          avg(fb.qual) :: FLOAT   AS quality,
          count(*)     :: FLOAT   AS counts
         FROM (
-        WITH uniquie_feedbacks AS (
+        WITH unique_feedbacks AS (
           SELECT
             f.id,
             f.voter_id,
@@ -80,7 +80,7 @@ class FeedbackRepository {
           FROM feedback f
         )
         SELECT uf.*
-        FROM uniquie_feedbacks uf
+        FROM unique_feedbacks uf
         where uf.rk = 1
         ORDER BY uf.session_id
         ) fb
@@ -99,7 +99,7 @@ class FeedbackRepository {
         avg(fb.qual) :: FLOAT   AS quality,
         count(*)     :: FLOAT   AS counts
        FROM (
-       WITH uniquie_feedbacks AS (
+       WITH unique_feedbacks AS (
          SELECT
            f.id,
            f.voter_id,
@@ -119,7 +119,7 @@ class FeedbackRepository {
          WHERE event_id = $eventId
        )
        SELECT uf.*
-       FROM uniquie_feedbacks uf
+       FROM unique_feedbacks uf
        WHERE uf.rk = 1
        ORDER BY uf.session_id
        ) fb
