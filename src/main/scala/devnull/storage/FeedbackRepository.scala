@@ -128,6 +128,34 @@ class FeedbackRepository {
        ) fb
       """.query[FeedbackResult]
     }
+
+    def selectComments(sessionId: UUID): Query0[String] = {
+      sql"""
+       SELECT
+         fb.comments
+       FROM (
+              WITH unique_feedbacks AS (
+                  SELECT
+                    f.id,
+                    f.voter_id,
+                    f.session_id       AS session_id,
+                    f.comments         AS COMMENTS,
+                    row_number()
+                    OVER(
+                      PARTITION BY f.voter_id, f.session_id
+                      ORDER BY f.created DESC
+                    ) AS rk
+                  FROM feedback f
+              )
+              SELECT uf.*
+              FROM unique_feedbacks uf
+              WHERE uf.rk = 1
+              ORDER BY uf.session_id
+            ) fb
+       WHERE fb.session_id = $sessionId
+       AND fb.comments IS NOT NULL
+      """.query[(String)]
+    }
   }
 
   def insertFeedback(fb: Feedback): hi.ConnectionIO[FeedbackId] = {
@@ -146,4 +174,7 @@ class FeedbackRepository {
     Queries.selectAvgForEvent(eventId).option
   }
 
+  def selectComments(sessionId: UUID): hi.ConnectionIO[List[String]] = {
+    Queries.selectComments(sessionId).list
+  }
 }
