@@ -68,6 +68,7 @@ class SessionFeedbackResource(
           sessionPaper <- paperFeedbackRepository.selectFeedbackForSession(sId).transact(xa)
           avgConferenceOnlineFeedback <- feedbackRepository.selectFeedbackForEvent(eId).transact(xa)
           avgPaperEvent <- paperFeedbackRepository.selectAvgFeedbackForEvent(eId).transact(xa)
+          comments <- feedbackRepository.selectComments(sId).transact(xa)
         } yield {
             val (paperDto: PaperDto, participants: Int) = avgPaperEvent.map { case (f: PaperRatingResult, i: Option[Double]) =>
               (PaperDto(f.green.getOrElse(0), f.yellow.getOrElse(0), f.red.getOrElse(0)), i.getOrElse(0d).toInt)
@@ -81,7 +82,8 @@ class SessionFeedbackResource(
                 OnlineDto(avgConferenceOnlineFeedback),
                 paperDto,
                 participants
-              )
+              ),
+              comments
             )
           }
         Ok ~> ResponseJson(response.run)
@@ -100,7 +102,7 @@ class SessionFeedbackResource(
 case class OnlineDto(overall: Double, relevance: Double, content: Double, quality: Double, count: Double)
 case class PaperDto(green: Double, yellow: Double, red: Double)
 case class FeedbackDto(online: OnlineDto, paper: PaperDto, participants: Int)
-case class GivenFeedbackDto(session: FeedbackDto, conference: FeedbackDto)
+case class GivenFeedbackDto(session: FeedbackDto, conference: FeedbackDto, comments: List[String])
 
 object OnlineDto {
   def apply(input: Option[FeedbackResult]): OnlineDto = {
