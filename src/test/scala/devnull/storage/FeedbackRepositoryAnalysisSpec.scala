@@ -36,4 +36,9 @@ class FeedbackRepositoryAnalysisSpec extends FunSpec with Matchers with DoobieAn
     query should matchDatabaseSchemaTypesQuery[FeedbackResult]
   }
 
+  // Does not match the schema (not null) even doe it's filtered out null values.
+  ignore("feedback query for comments must match types in the database", DatabaseTag) {
+    val query: Query0[String] = repo.Queries.selectComments(UUID.randomUUID())
+    query should matchDatabaseSchemaTypesQuery[String]
+  }
 }

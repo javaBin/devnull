@@ -11,9 +11,10 @@ object FeedbackTestData {
   def createFeedback(
       session: UUID = UUID.randomUUID(),
       source: String = UUID.randomUUID().toString,
-      voterId: String = "1234"): Feedback = {
+      voterId: String = "1234",
+      comments: Option[String] = Some("A Comment")): Feedback = {
     val info = VoterInfo(voterId, "127.0.0.1", "spec")
-    val ratings = Ratings(rating().get, rating(), rating(), rating())
+    val ratings = Ratings(rating().get, rating(), rating(), rating(), comments)
     Feedback(null, null, info, session, ratings)
   }
 

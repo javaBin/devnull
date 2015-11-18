@@ -22,7 +22,8 @@ class FeedbackRepository {
            rating_overall,
            rating_relevance,
            rating_content,
-           rating_quality
+           rating_quality,
+           comments
        ) VALUES (
            current_timestamp,
            ${fb.voterInfo.clientInfo},
@@ -32,7 +33,8 @@ class FeedbackRepository {
            ${fb.rating.overall},
            ${fb.rating.relevance},
            ${fb.rating.content},
-           ${fb.rating.quality}
+           ${fb.rating.quality},
+           ${fb.rating.comments}
        )""".update
     }
 
@@ -48,7 +50,8 @@ class FeedbackRepository {
            rating_overall,
            rating_relevance,
            rating_content,
-           rating_quality
+           rating_quality,
+           comments
        FROM feedback"""
         .query[(Feedback)]
     }
@@ -62,7 +65,7 @@ class FeedbackRepository {
          avg(fb.qual) :: FLOAT   AS quality,
          count(*)     :: FLOAT   AS counts
         FROM (
-        WITH uniquie_feedbacks AS (
+        WITH unique_feedbacks AS (
           SELECT
             f.id,
             f.voter_id,
@@ -80,7 +83,7 @@ class FeedbackRepository {
           FROM feedback f
         )
         SELECT uf.*
-        FROM uniquie_feedbacks uf
+        FROM unique_feedbacks uf
         where uf.rk = 1
         ORDER BY uf.session_id
         ) fb
@@ -99,7 +102,7 @@ class FeedbackRepository {
         avg(fb.qual) :: FLOAT   AS quality,
         count(*)     :: FLOAT   AS counts
        FROM (
-       WITH uniquie_feedbacks AS (
+       WITH unique_feedbacks AS (
          SELECT
            f.id,
            f.voter_id,
@@ -119,11 +122,39 @@ class FeedbackRepository {
          WHERE event_id = $eventId
        )
        SELECT uf.*
-       FROM uniquie_feedbacks uf
+       FROM unique_feedbacks uf
        WHERE uf.rk = 1
        ORDER BY uf.session_id
        ) fb
       """.query[FeedbackResult]
+    }
+
+    def selectComments(sessionId: UUID): Query0[String] = {
+      sql"""
+       SELECT
+         fb.comments
+       FROM (
+              WITH unique_feedbacks AS (
+                  SELECT
+                    f.id,
+                    f.voter_id,
+                    f.session_id       AS session_id,
+                    f.comments         AS COMMENTS,
+                    row_number()
+                    OVER(
+                      PARTITION BY f.voter_id, f.session_id
+                      ORDER BY f.created DESC
+                    ) AS rk
+                  FROM feedback f
+              )
+              SELECT uf.*
+              FROM unique_feedbacks uf
+              WHERE uf.rk = 1
+              ORDER BY uf.session_id
+            ) fb
+       WHERE fb.session_id = $sessionId
+       AND fb.comments IS NOT NULL
+      """.query[(String)]
     }
   }
 
@@ -143,4 +174,7 @@ class FeedbackRepository {
     Queries.selectAvgForEvent(eventId).option
   }
 
+  def selectComments(sessionId: UUID): hi.ConnectionIO[List[String]] = {
+    Queries.selectComments(sessionId).list
+  }
 }

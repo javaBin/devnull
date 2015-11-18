@@ -85,8 +85,49 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers w
       val result = repo.selectFeedbackForEvent(eventIdOne).transact(xa).run
 
       result should not be empty
-      result.get.count should be (Some(2))
+      result.get.count should be(Some(2))
+    }
+
+    describe("comments") {
+
+      it("should return empty list when no result ", DatabaseTag) {
+        val sessionId: UUID = UUID.randomUUID()
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = None)).transact(xa).run
+
+        val comments: List[String] = repo.selectComments(sessionId).transact(xa).run
+
+        comments should be(empty)
+      }
+
+      it("should only show comment for the given session", DatabaseTag) {
+        val sessionId: UUID = UUID.randomUUID()
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Session one"))).transact(xa).run
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = UUID.randomUUID(), comments = Some("Session two"))).transact(xa).run
+
+        val comments: List[String] = repo.selectComments(sessionId).transact(xa).run
+
+        comments should be("Session one" :: Nil)
+      }
+
+      it("should return the last comment for a [session, voterId]", DatabaseTag) {
+        val sessionId: UUID = UUID.randomUUID()
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Fist comment"))).transact(xa).run
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Last comment"))).transact(xa).run
+
+        val comments: List[String] = repo.selectComments(sessionId).transact(xa).run
+
+        comments should be("Last comment" :: Nil)
+      }
+
+      it("should return list of comments for unique votes", DatabaseTag) {
+        val sessionId: UUID = UUID.randomUUID()
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, voterId = "1234", comments = Some("One"))).transact(xa).run
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, voterId = "4321", comments = Some("Two"))).transact(xa).run
+
+        val comments: List[String] = repo.selectComments(sessionId).transact(xa).run
+
+        comments.sorted should be("One" :: "Two" :: Nil)
+      }
     }
   }
-
 }

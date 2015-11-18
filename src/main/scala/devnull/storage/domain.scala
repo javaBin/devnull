@@ -14,7 +14,8 @@ case class Ratings(
     overall: Short,
     relevance: Option[Short],
     content: Option[Short],
-    quality: Option[Short])
+    quality: Option[Short],
+    comments: Option[String] = None)
 
 case class FeedbackId(feedbackId: Int)
 

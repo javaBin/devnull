@@ -60,7 +60,7 @@ val unfiltered = Seq(
   "io.mth"         %% "unfiltered-cors"       % "0.3"
 )
 
-lazy val doobieVersion = "0.2.1"
+lazy val doobieVersion = "0.2.3"
 
 val database = Seq(
   "org.flywaydb"   %  "flyway-core"               % "3.2.1",
