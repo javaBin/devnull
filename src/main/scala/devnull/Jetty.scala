@@ -4,9 +4,9 @@ import java.io.File
 import java.time.Clock
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.ems.{EmsHttpClient, CachingEmsService, EmsService}
+import devnull.ems.{CachingEmsService, EmsHttpClient, EmsService}
 import devnull.storage._
-import doobie.util.transactor.DriverManagerTransactor
+import doobie.contrib.hikari.hikaritransactor.HikariTransactor
 import unfiltered.jetty.Server
 
 import scala.util.Properties._
@@ -32,7 +32,13 @@ object Jetty extends InitApp[AppConfig, AppReference] {
 
   override def onStart(cfg: AppConfig): AppReference = {
     val dbCfg: DatabaseConfig = cfg.databaseConfig
-    val xa = DriverManagerTransactor[Task](dbCfg.driver, dbCfg.connectionUrl, dbCfg.username, dbCfg.password)
+    val xa = for {
+      xa <- HikariTransactor[Task](dbCfg.driver, dbCfg.connectionUrl, dbCfg.username, dbCfg.password)
+      _ <- xa.configure(hxa =>
+        Task.delay {
+          hxa.setMaximumPoolSize(10)
+        })
+    } yield xa
 
     val repository: FeedbackRepository = new FeedbackRepository()
     val paperFeedbackRepository: PaperFeedbackRepository = new PaperFeedbackRepository()
@@ -40,7 +46,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val emsService: EmsService = new CachingEmsService(new EmsHttpClient(cfg.emsUrl))
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
-      _.plan(Resources(emsService, repository, paperFeedbackRepository, xa))
+      _.plan(Resources(emsService, repository, paperFeedbackRepository, xa.run))
     }.requestLogging("access.log")
 
     server.underlying.setSendDateHeader(true)
