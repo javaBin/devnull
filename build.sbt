@@ -65,7 +65,9 @@ lazy val doobieVersion = "0.2.3"
 val database = Seq(
   "org.flywaydb"   %  "flyway-core"               % "3.2.1",
   "org.tpolecat"   %% "doobie-core"               % doobieVersion  withSources(),
-  "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion  withSources()  exclude("postgresql", "postgresql")
+  "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion  withSources()  exclude("postgresql", "postgresql"),
+  "org.tpolecat"   %% "doobie-contrib-hikari"     % doobieVersion  withSources(),
+  "com.zaxxer"     %  "HikariCP"                  % "2.4.1"
 )
 
 lazy val AllTests = config("all") extend Test
