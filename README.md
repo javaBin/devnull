@@ -45,7 +45,21 @@ Headers:
 
 Content:
 
-application/vnd.collection+json:
+We support two types of contents: 
+
+* application/json:
+
+```
+{
+  "overall" : 1,
+  "relevance" : 1,
+  "content" : 1,
+  "quality" : 1,
+  "comments": "A Comment"
+}
+```
+
+* application/vnd.collection+json:
 
 ```
 {
@@ -61,17 +75,6 @@ application/vnd.collection+json:
 }
 ```
 
-application/json:
-
-```
-{
-  "overall" : 1,
-  "relevance" : 1,
-  "content" : 1,
-  "quality" : 1,
-  "comments": "A Comment"
-}
-```
 
 For the rating the valid input in the value parameter is an integer in the range 0 to 5 where 5 is the best score.
 The comment is optional but must be a string. 
