@@ -30,8 +30,8 @@ sbt all:test
 Services
 ========
 
-Add feedback
-------------
+Add feedback to a session
+-------------------------
 
 Endpoint: 
 `POST events/<eventId>/sessions/<sessionId>/feedbacks`
@@ -78,6 +78,35 @@ We support two types of contents:
 
 For the rating the valid input in the value parameter is an integer in the range 0 to 5 where 5 is the best score.
 The comment is optional but must be a string. 
+
+Add feedback to an event
+------------------------
+
+Endpoint: 
+`POST events/<eventId>/`
+
+Headers:
+
+| Header       | Required | Description                |
+|:-------------|:-------- |:-------------------------- |
+| Token        | Yes      | Security token             |
+
+
+Content:
+
+* application/json:
+
+```
+[
+  {
+    sessionId: "UUID",
+    green: 1,
+    yellow: 1,
+    red: 1,
+    participants: 1
+  }
+]
+```
 
 Examples
 ========
