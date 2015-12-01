@@ -55,6 +55,7 @@ application/vnd.collection+json:
       {"name": "relevance", "value" : 1},
       {"name": "content",   "value" : 1},
       {"name": "quality",   "value" : 1},
+      {"name": "comments",   "value" : "A Comment"}
     ]
   }
 }
@@ -67,11 +68,13 @@ application/json:
   "overall" : 1,
   "relevance" : 1,
   "content" : 1,
-  "quality" : 1
+  "quality" : 1,
+  "comments": "A Comment"
 }
 ```
 
-Valid input in the value parameter is an integer in the range 0 to 5 where 5 is the best score.
+For the rating the valid input in the value parameter is an integer in the range 0 to 5 where 5 is the best score.
+The comment is optional but must be a string. 
 
 Examples
 ========
