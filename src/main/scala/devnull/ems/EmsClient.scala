@@ -42,6 +42,7 @@ class EmsHttpClient(val baseUrl: String) extends EmsClient with HttpClient {
   def handleFailure(e: Throwable, eventId: EventId, sessionId: SessionId): Option[Session] = e match {
     case ex: ExecutionException => ex.getCause match {
       case StatusCode(405) => None
+      case StatusCode(404) => None
       case _ => throw EmsException(eventId, sessionId, e)
     }
     case _ => throw EmsException(eventId, sessionId, e)
