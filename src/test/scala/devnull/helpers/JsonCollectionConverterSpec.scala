@@ -3,6 +3,7 @@ package devnull.helpers
 import java.util.UUID
 
 import devnull.rest.helpers.JsonCollectionConverter
+import devnull.sessions.{EventId, SessionId}
 import devnull.storage.{Feedback, VoterInfo}
 import net.hamnaberg.json.collection.{Property, Template}
 import org.scalatest.{FunSpec, Matchers}
@@ -51,8 +52,8 @@ class JsonCollectionConverterSpec extends FunSpec with Matchers {
     def toFeedbackWithRandomIds(template: Template): Option[Feedback] = {
       JsonCollectionConverter.toFeedback(
         template,
-        UUID.randomUUID().toString,
-        UUID.randomUUID().toString,
+        EventId(UUID.randomUUID()),
+        SessionId(UUID.randomUUID()),
         VoterInfo("TestVoterId", "1.2.3.4", "spec")
       )
     }
