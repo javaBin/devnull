@@ -1,4 +1,4 @@
-package devnull.ems
+package devnull.sessions
 
 import java.util.concurrent.ExecutionException
 
@@ -6,14 +6,10 @@ import dispatch.StatusCode
 import net.hamnaberg.json.collection.JsonCollection
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.duration.DurationInt
 import scala.util.{Failure, Success, Try}
 
-trait EmsClient {
-  def session(eventId: EventId, session: SessionId): Option[Session]
-}
-
-class EmsHttpClient(val baseUrl: String) extends EmsClient with HttpClient {
+class EmsHttpSessionClient(val baseUrl: String) extends SessionClient with HttpClient {
 
   override def session(eventId: EventId, sessionId: SessionId): Option[Session] = {
     val path: List[Any] = "events" :: eventId :: "sessions" :: sessionId :: Nil

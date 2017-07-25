@@ -1,6 +1,6 @@
-package devnull.ems
+package devnull.sessions
 
-trait EmsService {
+trait SessionService {
 
   def getSession(eventId: EventId, sessionId: SessionId): Option[Session]
   def canRegisterFeedback(eventId: EventId, sessionId: SessionId): Boolean

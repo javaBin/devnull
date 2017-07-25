@@ -1,4 +1,4 @@
-package devnull.ems
+package devnull.sessions
 
 import com.ning.http.client
 import dispatch.{url => reqUrl, _}

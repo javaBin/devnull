@@ -4,7 +4,8 @@ import java.io.File
 import java.time.Clock
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.ems.{CachingEmsService, EmsHttpClient, EmsService}
+import devnull.sessions.{CachingSessionService, EmsHttpSessionClient, SessionService}
+import devnull.sessions.{EmsHttpSessionClient, SessionService}
 import devnull.storage._
 import doobie.contrib.hikari.hikaritransactor.HikariTransactor
 import unfiltered.jetty.Server
@@ -43,7 +44,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val repository: FeedbackRepository = new FeedbackRepository()
     val paperFeedbackRepository: PaperFeedbackRepository = new PaperFeedbackRepository()
     implicit val clock = Clock.systemUTC()
-    val emsService: EmsService = new CachingEmsService(new EmsHttpClient(cfg.emsUrl))
+    val emsService: SessionService = new CachingSessionService(new EmsHttpSessionClient(cfg.emsUrl))
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
       _.plan(Resources(emsService, repository, paperFeedbackRepository, xa.run))

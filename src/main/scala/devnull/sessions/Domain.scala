@@ -1,4 +1,4 @@
-package devnull.ems
+package devnull.sessions
 
 import java.time.LocalDateTime
 import java.util.UUID

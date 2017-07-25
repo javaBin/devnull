@@ -4,13 +4,14 @@ import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.ems.{EmsService, EventId, SessionId}
+import devnull.sessions.{SessionService, SessionId}
 import devnull.rest.helpers.ContentTypeResolver._
 import devnull.rest.helpers.DirectiveHelper.trueOrElse
 import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson, withTemplate}
 import devnull.rest.helpers.JsonCollectionConverter.toFeedback
 import devnull.rest.helpers.ResponseWrites.{ResponseCollectionJson, ResponseJson}
 import devnull.rest.helpers._
+import devnull.sessions.{SessionService, EventId, SessionId}
 import devnull.storage._
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
@@ -24,7 +25,7 @@ import unfiltered.response._
 import scalaz.concurrent.Task
 
 class SessionFeedbackResource(
-    ems: EmsService,
+    ems: SessionService,
     feedbackRepository: FeedbackRepository,
     paperFeedbackRepository: PaperFeedbackRepository,
     xa: Transactor[Task]) extends LazyLogging {
