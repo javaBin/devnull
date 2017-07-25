@@ -4,7 +4,7 @@ import org.scalatest.{FunSpec, Matchers}
 
 class EmsHttpSessionClientSpec extends FunSpec with Matchers {
 
-  val emsHost = "http://test.javazone.no/ems/server/"
+  val emsHost = "https://test.javazone.no/ems/server/"
   val eventId = EventId("9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f")
   val sessionId = SessionId("f04397ac-a3ba-4048-88f0-54a816bb2a84")
 
