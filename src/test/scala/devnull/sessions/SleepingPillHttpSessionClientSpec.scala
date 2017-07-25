@@ -11,7 +11,7 @@ class SleepingPillHttpSessionClientSpec extends FunSpec with Matchers {
     val eventId = EventId("9f40063a-5f20-4d7b-b1e8-ed0c6cc18a5f")
     val sessionId = SessionId("f04397ac-a3ba-4048-88f0-54a816bb2a84")
 
-    it("should be able to fetch session") {
+    ignore("should be able to fetch session") {
       val client = new SleepingPillHttpSessionClient(baseUrl)
       val session = client.session(eventId, sessionId)
 
