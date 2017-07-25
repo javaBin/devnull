@@ -5,7 +5,6 @@ import java.time.Clock
 
 import com.typesafe.scalalogging.LazyLogging
 import devnull.sessions.{CachingSessionService, EmsHttpSessionClient, SessionService}
-import devnull.sessions.{EmsHttpSessionClient, SessionService}
 import devnull.storage._
 import doobie.contrib.hikari.hikaritransactor.HikariTransactor
 import unfiltered.jetty.Server
@@ -18,7 +17,8 @@ case class AppConfig(
     httpContextPath: String,
     home: File,
     databaseConfig: DatabaseConfig,
-    emsUrl: String)
+    emsUrl: String
+)
 
 case class AppReference(server: Server)
 
