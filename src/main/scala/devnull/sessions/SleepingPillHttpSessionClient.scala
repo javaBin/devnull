@@ -19,11 +19,11 @@ class SleepingPillHttpSessionClient(val baseUrl: String) extends SessionClient {
 
   val c: Http = Http.withConfiguration(_.setFollowRedirect(true))
 
-  override def session(eventId: EventId, session: SessionId): Option[Session] = {
+  override def session(eventId: EventId, sessionId: SessionId): Option[Session] = {
     val pathElements = List("conference", eventId.toString, "session")
     val req: Req = pathElements.reverse.foldRight(reqUrl(baseUrl))((path, re) => re / path)
     val sessionJson = Await.result(c(req OK SessionJson), 15.seconds)
-    sessionJson.findSession(session)
+    sessionJson.findSession(sessionId)
   }
 }
 

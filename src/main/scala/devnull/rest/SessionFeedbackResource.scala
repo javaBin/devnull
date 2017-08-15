@@ -25,7 +25,7 @@ import unfiltered.response._
 import scalaz.concurrent.Task
 
 class SessionFeedbackResource(
-    ems: SessionService,
+    sessionService: SessionService,
     feedbackRepository: FeedbackRepository,
     paperFeedbackRepository: PaperFeedbackRepository,
     xa: Transactor[Task]
@@ -40,8 +40,8 @@ class SessionFeedbackResource(
       contentType <- withContentTypes(List(MIMEType.Json, MIMEType.CollectionJson))
       eventId <- fromEither(UuidFromString(eventIdStr).right.map(EventId.apply))
       sessionId <- fromEither(UuidFromString(sessionIdStr).right.map(SessionId.apply))
-      session <- getOrElse(ems.getSession(eventId, sessionId), NotFound ~> ResponseString("Didn't find the session"))
-      _ <- trueOrElse(ems.canRegisterFeedback(eventId, sessionId), Forbidden ~> ResponseString("Feedback not open yet!"))
+      session <- getOrElse(sessionService.getSession(eventId, sessionId), NotFound ~> ResponseString("Didn't find the session"))
+      _ <- trueOrElse(sessionService.canRegisterFeedback(eventId, sessionId), Forbidden ~> ResponseString("Feedback not open yet!"))
       parsed <- parseFeedback(contentType, session.eventId, session.sessionId, voterInfo)
       feedback <- fromEither(parsed)
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
@@ -65,7 +65,7 @@ class SessionFeedbackResource(
       _ <- GET
       eventId <- fromEither(UuidFromString(eventIdStr).right.map(EventId.apply))
       sessionId <- fromEither(UuidFromString(sessionIdStr).right.map(SessionId.apply))
-      _ <- getOrElse(ems.getSession(eventId, sessionId), NotFound ~> ResponseString("Didn't find the session"))
+      _ <- getOrElse(sessionService.getSession(eventId, sessionId), NotFound ~> ResponseString("Didn't find the session"))
     } yield {
       val sId: UUID = sessionId.id
       val eId: UUID = eventId.id
