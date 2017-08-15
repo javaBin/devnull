@@ -12,7 +12,7 @@ import scalaz.concurrent.Task
 class PaperFeedbackAnalysisRepositorySpec extends FunSpec with BeforeAndAfter  with Matchers with DoobieAnalysisMatcher with DatabaseMigration  {
 
   val cfg = DatabaseConfigEnv()
-  implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)
+  implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password.value)
   val repo: PaperFeedbackRepository = new PaperFeedbackRepository()
 
   after {

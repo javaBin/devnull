@@ -3,9 +3,11 @@ package devnull.rest
 import java.util.UUID
 import javax.servlet.http.HttpServletRequest
 
+import devnull.UuidFromString
 import devnull.rest.helpers.ContentTypeResolver.withContentTypes
 import devnull.rest.helpers.EitherDirective._
 import devnull.rest.helpers.ResponseWrites.ResponseJson
+import devnull.sessions.EventId
 import devnull.storage.{PaperFeedback, PaperFeedbackRepository, PaperRating}
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
@@ -22,10 +24,11 @@ import scalaz.concurrent.Task
 class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa: Transactor[Task]) {
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
-  def handleFeedback(eventId: String): ResponseDirective = {
+  def handleFeedback(eventIdStr: String): ResponseDirective = {
     for {
       _ <- POST
       _ <- withContentTypes(List(MIMEType.Json))
+      eventId <- fromEither(UuidFromString(eventIdStr).right.map(EventId.apply))
       _ <- hasAdminTokenToken
       paperFeedbacks <- toJson[FeedbackWrapper]
     } yield {
@@ -38,7 +41,7 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
   def toJson[T : Manifest]:EitherDirective[T] = {
     inputStream.map(is => {
       implicit val formats = org.json4s.DefaultFormats
-      val parse: JValue = JsonMethods.parse(new StreamInput(is))
+      val parse: JValue = JsonMethods.parse(StreamInput(is))
       parse.extract[T]
     })
   }
@@ -57,11 +60,11 @@ case class FeedbackWrapper(feedbacks: List[PaperFeedbackEntry])
 case class FeedbackResponse(numInserted: Int)
 
 object ToPaperFeedback {
-  def apply(eventId: String, entry: PaperFeedbackEntry): PaperFeedback = {
+  def apply(eventId: EventId, entry: PaperFeedbackEntry): PaperFeedback = {
     PaperFeedback(
       null,
       null,
-      UUID.fromString(eventId),
+      eventId.id,
       UUID.fromString(entry.sessionId),
       PaperRating(entry.green, entry.yellow, entry.red),
       entry.participants)

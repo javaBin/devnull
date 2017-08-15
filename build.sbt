@@ -98,7 +98,7 @@ lazy val devnull = (project in file(".")).
       "commons-io"                    %  "commons-io"            % "2.3",
       "com.github.ben-manes.caffeine" %  "caffeine"              % "1.3.1",
       "com.google.code.findbugs"      %  "jsr305"                % "3.0.0"   % Provided,
-      "net.databinder.dispatch"       %% "dispatch-core"         % "0.11.2",
+      "net.databinder.dispatch"       %% "dispatch-core"         % "0.13.1",
       "com.typesafe.scala-logging"    %% "scala-logging"         % "3.1.0",
       "org.scalatest"                 %%  "scalatest"            % "2.2.4"   % Test
     )

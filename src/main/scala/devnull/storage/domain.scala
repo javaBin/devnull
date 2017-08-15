@@ -51,8 +51,12 @@ case class DatabaseConfig(
     port: Int = 5432,
     database: String = "devnull",
     username: String = "devnull",
-    password: String = "devnull") {
+    password: SecretString = SecretString("devnull")) {
   val connectionUrl = s"jdbc:postgresql://$host:$port/$database"
+}
+
+case class SecretString(value: String) {
+  override def toString: String = "****"
 }
 
 object DatabaseConfigEnv {
@@ -61,7 +65,7 @@ object DatabaseConfigEnv {
     DatabaseConfig(
       database = propOrElse("dbName", envOrElse("DB_NAME", "devnull")),
       username = propOrElse("dbUsername", envOrElse("DB_USERNAME", "devnull")),
-      password = propOrElse("dbPassword", envOrElse("DB_PASSWORD", "devnull"))
+      password = SecretString(propOrElse("dbPassword", envOrElse("DB_PASSWORD", "devnull")))
     )
   }
 }

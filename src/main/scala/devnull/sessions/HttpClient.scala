@@ -1,6 +1,6 @@
-package devnull.ems
+package devnull.sessions
 
-import com.ning.http.client
+import org.asynchttpclient.Response
 import dispatch.{url => reqUrl, _}
 import net.hamnaberg.json.collection.JsonCollection
 
@@ -8,7 +8,7 @@ trait HttpClient {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val c: Http = new Http().configure(_.setFollowRedirects(true))
+  val c: Http = Http.withConfiguration(_.setFollowRedirect(true))
 
   def baseUrl: String
 
@@ -19,8 +19,8 @@ trait HttpClient {
 
 }
 
-object Collection extends (client.Response => JsonCollection) {
-  override def apply(r: client.Response): JsonCollection = {
+object Collection extends (Response => JsonCollection) {
+  override def apply(r: Response): JsonCollection = {
     val parsed: Either[Throwable, JsonCollection] = JsonCollection.parse(r.getResponseBodyAsStream)
     parsed.right.get
   }

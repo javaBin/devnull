@@ -2,9 +2,9 @@ package devnull
 
 import javax.servlet.http.HttpServletRequest
 
-import devnull.ems.EmsService
 import devnull.rest._
-import devnull.storage.{PaperFeedbackRepository, FeedbackRepository}
+import devnull.sessions.SessionService
+import devnull.storage.{FeedbackRepository, PaperFeedbackRepository}
 import doobie.util.transactor.Transactor
 import linx.Root
 import unfiltered.directives.Directives._
@@ -14,7 +14,7 @@ import unfiltered.filter.Plan.Intent
 import unfiltered.filter.request.ContextPath
 import unfiltered.request._
 import unfiltered.response._
-import io.mth.unfiltered.cors.{CorsConfig, Cors}
+import io.mth.unfiltered.cors.{Cors, CorsConfig}
 
 import scala.language.implicitConversions
 import scalaz.concurrent.Task
@@ -23,7 +23,7 @@ class Resources(feedbackResource: SessionFeedbackResource, eventFeedbackResource
 
   val cors = Cors(
     CorsConfig(
-      (origin: String) => {origin.contains("javazone.no")},
+      (origin: String) => {true},
       (method: String) => List("POST", "GET").contains(method),
       (headers: List[String]) => true,
       allowCredentials = true,
@@ -58,7 +58,7 @@ class Resources(feedbackResource: SessionFeedbackResource, eventFeedbackResource
 object Resources {
 
   def apply(
-      emsService: EmsService,
+      emsService: SessionService,
       feedbackRepository: FeedbackRepository,
       paperFeedbackRepository: PaperFeedbackRepository,
       xa: Transactor[Task]) = {
