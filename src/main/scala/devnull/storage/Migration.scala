@@ -13,7 +13,7 @@ object Migration extends LazyLogging {
       cfg.driver,
       cfg.connectionUrl,
       cfg.username,
-      cfg.password
+      cfg.password.value
     )
     fw.setDataSource(ds)
     val numMigrationExecuted: Int = fw.migrate()

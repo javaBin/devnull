@@ -12,7 +12,7 @@ import scalaz.concurrent.Task
 class PaperFeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers with DatabaseMigration  {
 
   val cfg = DatabaseConfigEnv()
-  val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)
+  val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password.value)
   val repo = new PaperFeedbackRepository()
 
   describe("Postgres database") {

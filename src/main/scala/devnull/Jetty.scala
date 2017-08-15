@@ -28,6 +28,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
 
   override def onStartup(): AppConfig = {
     val config: AppConfig = createConfig()
+    logger.info(s"Using config $config")
     Migration.runMigration(config.databaseConfig)
     config
   }
@@ -35,7 +36,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
   override def onStart(cfg: AppConfig): AppReference = {
     val dbCfg: DatabaseConfig = cfg.databaseConfig
     val xa = for {
-      xa <- HikariTransactor[Task](dbCfg.driver, dbCfg.connectionUrl, dbCfg.username, dbCfg.password)
+      xa <- HikariTransactor[Task](dbCfg.driver, dbCfg.connectionUrl, dbCfg.username, dbCfg.password.value)
       _ <- xa.configure(hxa =>
         Task.delay {
           hxa.setMaximumPoolSize(10)

@@ -12,7 +12,7 @@ import scalaz.concurrent.Task
 class FeedbackRepositoryAnalysisSpec extends FunSpec with Matchers with DoobieAnalysisMatcher with DatabaseMigration {
 
   val cfg = DatabaseConfigEnv()
-  implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password)
+  implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password.value)
   val repo: FeedbackRepository = new FeedbackRepository()
 
   it("feedback query must match types in the database", DatabaseTag) {
