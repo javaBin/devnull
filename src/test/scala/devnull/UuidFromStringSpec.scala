@@ -12,7 +12,7 @@ class UuidFromStringSpec extends FunSpec with Matchers with Inside {
       val res = UuidFromString(uuid.toString)
 
       inside(res) {
-        case Right(v) => v shouldBe uuid
+        case Right((v, true)) => v shouldBe uuid
       }
     }
 
@@ -21,7 +21,7 @@ class UuidFromStringSpec extends FunSpec with Matchers with Inside {
       val res = UuidFromString(uuid.toString.replace("-", ""))
 
       inside(res) {
-        case Right(v) => v shouldBe uuid
+        case Right((v, false)) => v shouldBe uuid
       }
     }
 
