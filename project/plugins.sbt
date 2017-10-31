@@ -1,4 +1,4 @@
-addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.14")
+addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.21")
 
 addSbtPlugin("net.hamnaberg.sbt" % "sbt-appassembler" % "0.6.0")
 
