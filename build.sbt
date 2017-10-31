@@ -1,20 +1,20 @@
 import scala.util.Properties
+import aether.AetherKeys._
 
 val commonSettings = Seq(
   organization := "no.java.devnull",
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.11.8",
   name := "devnull",
-  crossScalaVersions := Seq("2.11.7"),
+  crossScalaVersions := Seq("2.11.8"),
   scalacOptions := Seq("-deprecation", "-feature"),
   pomIncludeRepository := {
     x => false
   },
   crossPaths := false,
-  publishTo <<= (version) apply {
-    (v: String) => if (v.trim().endsWith("SNAPSHOT")) {
+  publishTo := {
+    if (isSnapshot.value) {
       Some("JavaBin Nexus repo" at "http://nye.java.no/nexus/content/repositories/snapshots")
-    }
-    else {
+    } else {
       Some("JavaBin Nexus repo" at "http://nye.java.no/nexus/content/repositories/releases")
     }
   },
@@ -23,10 +23,11 @@ val commonSettings = Seq(
     if (cred.exists) Seq(Credentials(cred)) else Nil
   },
   target in App := target.value / "appmgr" / "root",
-  packageBin in Appmgr <<= (packageBin in Appmgr).dependsOn(packageBin in App),
+  packageBin in Appmgr := (packageBin in Appmgr).dependsOn(packageBin in App).value,
   appmgrLauncher in Appmgr := (appmgrLauncher in Appmgr).value.map(_.copy(command = "jetty", name = "devnull")),
-  aether.AetherKeys.aetherArtifact <<= (aether.AetherKeys.aetherArtifact, (packageBin in Appmgr)) map { (art, build) =>
-    art.attach(build, "appmgr", "zip")
+  aetherArtifact := {
+    val artifact = aetherArtifact.value
+    artifact.attach((packageBin in Appmgr).value, "appmgr", "zip")
   },
   credentials ++= {
     (for {
