@@ -16,21 +16,21 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers w
   val repo = new FeedbackRepository()
 
   after {
-    sql"delete from feedback".update.run.transact(xa).run
+    sql"delete from feedback".update.run.transact(xa).unsafePerformSync
   }
 
   describe("Postgres database") {
 
     it("should insert a feedback", DatabaseTag) {
-      val response: FeedbackId = repo.insertFeedback(FeedbackTestData.createFeedback()).transact(xa).run
+      val response: FeedbackId = repo.insertFeedback(FeedbackTestData.createFeedback()).transact(xa).unsafePerformSync
 
       response.feedbackId should be > 0
     }
 
     it("should query an inserted feedback", DatabaseTag) {
-      repo.insertFeedback(FeedbackTestData.createFeedback()).transact(xa).run
+      repo.insertFeedback(FeedbackTestData.createFeedback()).transact(xa).unsafePerformSync
 
-      val feedbacks: List[Feedback] = repo.selectFeedbacks().transact(xa).run
+      val feedbacks: List[Feedback] = repo.selectFeedbacks().transact(xa).unsafePerformSync
 
       feedbacks should have size 1
     }
@@ -44,9 +44,9 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers w
         r1 <- repo.insertFeedback(Feedback(null, null, info_1, sessionId, Ratings(2, Some(3), Some(4), Some(5)))).transact(xa)
         r2 <- repo.insertFeedback(Feedback(null, null, info_2, sessionId, Ratings(5, Some(4), Some(3), Some(2)))).transact(xa)
       } yield s"Inserted $r1 and $r2"
-      insertTestData.run
+      insertTestData.unsafePerformSync
 
-      val result: Option[FeedbackResult] = repo.selectFeedbackForSession(sessionId).transact(xa).run
+      val result: Option[FeedbackResult] = repo.selectFeedbackForSession(sessionId).transact(xa).unsafePerformSync
 
       result should not be empty
       result.get.count should be(Some(2))
@@ -80,9 +80,9 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers w
 
         t8 <- repo.insertFeedback(FeedbackTestData.createFeedback(voterId = "12345")).transact(xa)
       } yield "done"
-      insert.run
+      insert.unsafePerformSync
 
-      val result = repo.selectFeedbackForEvent(eventIdOne).transact(xa).run
+      val result = repo.selectFeedbackForEvent(eventIdOne).transact(xa).unsafePerformSync
 
       result should not be empty
       result.get.count should be(Some(2))
@@ -92,39 +92,39 @@ class FeedbackRepositorySpec extends FunSpec with BeforeAndAfter with Matchers w
 
       it("should return empty list when no result ", DatabaseTag) {
         val sessionId: UUID = UUID.randomUUID()
-        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = None)).transact(xa).run
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = None)).transact(xa).unsafePerformSync
 
-        val comments: List[String] = repo.selectComments(sessionId).transact(xa).run
+        val comments: List[String] = repo.selectComments(sessionId).transact(xa).unsafePerformSync
 
         comments should be(empty)
       }
 
       it("should only show comment for the given session", DatabaseTag) {
         val sessionId: UUID = UUID.randomUUID()
-        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Session one"))).transact(xa).run
-        repo.insertFeedback(FeedbackTestData.createFeedback(session = UUID.randomUUID(), comments = Some("Session two"))).transact(xa).run
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Session one"))).transact(xa).unsafePerformSync
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = UUID.randomUUID(), comments = Some("Session two"))).transact(xa).unsafePerformSync
 
-        val comments: List[String] = repo.selectComments(sessionId).transact(xa).run
+        val comments: List[String] = repo.selectComments(sessionId).transact(xa).unsafePerformSync
 
         comments should be("Session one" :: Nil)
       }
 
       it("should return the last comment for a [session, voterId]", DatabaseTag) {
         val sessionId: UUID = UUID.randomUUID()
-        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Fist comment"))).transact(xa).run
-        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Last comment"))).transact(xa).run
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Fist comment"))).transact(xa).unsafePerformSync
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, comments = Some("Last comment"))).transact(xa).unsafePerformSync
 
-        val comments: List[String] = repo.selectComments(sessionId).transact(xa).run
+        val comments: List[String] = repo.selectComments(sessionId).transact(xa).unsafePerformSync
 
         comments should be("Last comment" :: Nil)
       }
 
       it("should return list of comments for unique votes", DatabaseTag) {
         val sessionId: UUID = UUID.randomUUID()
-        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, voterId = "1234", comments = Some("One"))).transact(xa).run
-        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, voterId = "4321", comments = Some("Two"))).transact(xa).run
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, voterId = "1234", comments = Some("One"))).transact(xa).unsafePerformSync
+        repo.insertFeedback(FeedbackTestData.createFeedback(session = sessionId, voterId = "4321", comments = Some("Two"))).transact(xa).unsafePerformSync
 
-        val comments: List[String] = repo.selectComments(sessionId).transact(xa).run
+        val comments: List[String] = repo.selectComments(sessionId).transact(xa).unsafePerformSync
 
         comments.sorted should be("One" :: "Two" :: Nil)
       }

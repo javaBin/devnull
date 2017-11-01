@@ -3,9 +3,9 @@ import aether.AetherKeys._
 
 val commonSettings = Seq(
   organization := "no.java.devnull",
-  scalaVersion := "2.11.8",
+  scalaVersion := "2.11.11",
   name := "devnull",
-  crossScalaVersions := Seq("2.11.8"),
+  crossScalaVersions := Seq("2.11.11"),
   scalacOptions := Seq("-deprecation", "-feature"),
   pomIncludeRepository := {
     x => false
@@ -45,8 +45,8 @@ val commonSettings = Seq(
 ) ++ overridePublishBothSettings
 
 val joda = Seq(
-  "joda-time" % "joda-time" % "2.2",
-  "org.joda" % "joda-convert" % "1.2"
+  "joda-time" % "joda-time" % "2.9.9",
+  "org.joda" % "joda-convert" % "1.9.2"
 )
 
 lazy val unfilteredVersion = "0.8.4"
@@ -56,19 +56,19 @@ val unfiltered = Seq(
   "net.databinder" %% "unfiltered-directives" % unfilteredVersion,
   "net.databinder" %% "unfiltered-jetty"      % unfilteredVersion,
   "com.jteigen"    %% "linx"                  % "0.2",
-  "org.slf4j"      %  "slf4j-api"             % "1.7.7",
-  "org.slf4j"      %  "slf4j-simple"          % "1.7.7",
+  "org.slf4j"      %  "slf4j-api"             % "1.7.25",
+  "org.slf4j"      %  "slf4j-simple"          % "1.7.25",
   "io.mth"         %% "unfiltered-cors"       % "0.3"
 )
 
-lazy val doobieVersion = "0.2.3"
+lazy val doobieVersion = "0.3.0"
 
 val database = Seq(
-  "org.flywaydb"   %  "flyway-core"               % "3.2.1",
+  "org.flywaydb"   %  "flyway-core"               % "4.2.0",
   "org.tpolecat"   %% "doobie-core"               % doobieVersion  withSources(),
   "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion  withSources()  exclude("postgresql", "postgresql"),
   "org.tpolecat"   %% "doobie-contrib-hikari"     % doobieVersion  withSources(),
-  "com.zaxxer"     %  "HikariCP"                  % "2.4.1"
+  "com.zaxxer"     %  "HikariCP"                  % "2.7.2"
 )
 
 lazy val AllTests = config("all") extend Test
@@ -92,16 +92,16 @@ lazy val devnull = (project in file(".")).
     parallelExecution in DbTests := false,
     parallelExecution in AllTests := false,
     libraryDependencies ++= joda ++ unfiltered ++ database ++ Seq(
-      "org.json4s"                    %% "json4s-native"         % "3.2.10",
-      "org.ini4j"                     %  "ini4j"                 % "0.5.2",
-      "org.constretto"                %% "constretto-scala"      % "1.1",
-      "net.hamnaberg.rest"            %% "scala-json-collection" % "2.3",
-      "commons-io"                    %  "commons-io"            % "2.3",
-      "com.github.ben-manes.caffeine" %  "caffeine"              % "1.3.1",
-      "com.google.code.findbugs"      %  "jsr305"                % "3.0.0"   % Provided,
-      "net.databinder.dispatch"       %% "dispatch-core"         % "0.13.1",
-      "com.typesafe.scala-logging"    %% "scala-logging"         % "3.1.0",
-      "org.scalatest"                 %%  "scalatest"            % "2.2.4"   % Test
+      "org.json4s"                    %% "json4s-native"         % "3.5.3",
+      "org.ini4j"                     %  "ini4j"                 % "0.5.4",
+      "org.constretto"                %% "constretto-scala"      % "1.2",
+      "net.hamnaberg.rest"            %% "scala-json-collection" % "2.4",
+      "commons-io"                    %  "commons-io"            % "2.6",
+      "com.github.ben-manes.caffeine" %  "caffeine"              % "2.5.6",
+      "com.google.code.findbugs"      %  "jsr305"                % "3.0.2"   % Provided,
+      "net.databinder.dispatch"       %% "dispatch-core"         % "0.13.2",
+      "com.typesafe.scala-logging"    %% "scala-logging"         % "3.7.2",
+      "org.scalatest"                 %%  "scalatest"            % "3.0.4"   % Test
     )
     /*
     Arguments: http://www.scalatest.org/user_guide/using_the_runner

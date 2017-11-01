@@ -52,7 +52,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     )
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
-      _.plan(Resources(emsService, repository, paperFeedbackRepository, xa.run))
+      _.plan(Resources(emsService, repository, paperFeedbackRepository, xa.unsafePerformSync))
     }.requestLogging("access.log")
 
     server.underlying.setSendDateHeader(true)
