@@ -26,14 +26,15 @@ object Dependencies {
     "com.typesafe.scala-logging" %% "scala-logging"         % "3.7.2"
   )
 
-  lazy val doobieVersion = "0.3.0"
+  lazy val doobieVersion = "0.4.4"
 
   val database = Seq(
-    "org.flywaydb"   %  "flyway-core"               % "4.2.0",
-    "org.tpolecat"   %% "doobie-core"               % doobieVersion  withSources(),
-    "org.tpolecat"   %% "doobie-contrib-postgresql" % doobieVersion  withSources()  exclude("postgresql", "postgresql"),
-    "org.tpolecat"   %% "doobie-contrib-hikari"     % doobieVersion  withSources(),
-    "com.zaxxer"     %  "HikariCP"                  % "2.7.2"
+    "org.flywaydb"   %  "flyway-core"      % "4.2.0",
+    "org.tpolecat"   %% "doobie-core"      % doobieVersion  withSources(),
+    "org.tpolecat"   %% "doobie-postgres"  % doobieVersion  withSources()  exclude("postgresql", "postgresql"),
+    "org.tpolecat"   %% "doobie-hikari"    % doobieVersion  withSources(),
+    "org.tpolecat"   %% "doobie-scalatest" % doobieVersion  withSources(),
+    "com.zaxxer"     %  "HikariCP"         % "2.7.2"
   )
 
   val caffine =    "com.github.ben-manes.caffeine" %  "caffeine"              % "2.5.6"

@@ -4,7 +4,6 @@ import java.util.UUID
 
 import devnull.TestTags.DatabaseTag
 import doobie.imports._
-import doobie.util.transactor.DriverManagerTransactor
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 import scalaz.concurrent.Task

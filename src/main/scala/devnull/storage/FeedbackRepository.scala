@@ -2,7 +2,7 @@ package devnull.storage
 
 import java.util.UUID
 
-import doobie.contrib.postgresql.pgtypes._
+import doobie.postgres.pgtypes._
 import doobie.hi
 import doobie.imports._
 

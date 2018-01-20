@@ -3,38 +3,34 @@ package devnull.storage
 import java.util.UUID
 
 import devnull.TestTags.DatabaseTag
+import doobie.imports
 import doobie.imports._
-import doobie.util.transactor.DriverManagerTransactor
-import org.scalatest.{BeforeAndAfter, Matchers, FunSpec}
+import doobie.scalatest._
+import org.scalatest.{FunSpec, Matchers}
 
-import scalaz.concurrent.Task
-
-class PaperFeedbackAnalysisRepositorySpec extends FunSpec with BeforeAndAfter  with Matchers with DoobieAnalysisMatcher with DatabaseMigration  {
+class PaperFeedbackAnalysisRepositorySpec extends FunSpec  with Matchers with DatabaseMigration with IOLiteChecker {
 
   val cfg = DatabaseConfigEnv()
-  implicit val xa = DriverManagerTransactor[Task](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password.value)
+  implicit val xa = DriverManagerTransactor[IOLite](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password.value)
   val repo: PaperFeedbackRepository = new PaperFeedbackRepository()
-
-  after {
-    sql"delete from paper_feedback".update.run.transact(xa).run
-  }
 
   describe("paper feedback") {
     it("query for session must match types in the database", DatabaseTag) {
       val query: Query0[PaperFeedback] = repo.Queries.selectFeedback(UUID.randomUUID())
-      query should matchDatabaseSchemaTypesQuery[PaperFeedback]
+      check(query)
     }
 
     it("query for event must match types in the database", DatabaseTag) {
       val query: Query0[(PaperRatingResult, Option[Double])] = repo.Queries.selectAvgFeedbackForEvent(UUID.randomUUID())
-      query should matchDatabaseSchemaTypesQuery[(PaperRatingResult, Option[Double])]
+      check(query)
     }
 
     it("insert must match types in the database", DatabaseTag) {
       val insert: Update0 = repo.Queries.insert(FeedbackTestData.createPaperFeedback())
 
-      insert should matchDatabaseSchemaTypesUpdate
+      check(insert)
     }
   }
 
+  override def transactor: imports.Transactor[imports.IOLite] = xa
 }

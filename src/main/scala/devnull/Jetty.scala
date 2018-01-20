@@ -6,7 +6,7 @@ import java.time.Clock
 import com.typesafe.scalalogging.LazyLogging
 import devnull.sessions.{CachingSessionService, SessionService, SleepingPillHttpSessionClient}
 import devnull.storage._
-import doobie.contrib.hikari.hikaritransactor.HikariTransactor
+import doobie.hikari.hikaritransactor.HikariTransactor
 import unfiltered.jetty.Server
 
 import scala.util.Properties._
