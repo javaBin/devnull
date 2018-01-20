@@ -4,7 +4,7 @@ import java.io.File
 import java.time.Clock
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.sessions.{CachingSessionService, EmsHttpSessionClient, SessionService, SleepingPillHttpSessionClient}
+import devnull.sessions.{CachingSessionService, SessionService, SleepingPillHttpSessionClient}
 import devnull.storage._
 import doobie.contrib.hikari.hikaritransactor.HikariTransactor
 import unfiltered.jetty.Server
@@ -18,7 +18,7 @@ case class AppConfig(
     home: File,
     databaseConfig: DatabaseConfig,
     emsUrl: String,
-    sleepingPillUrl: Option[String]
+    sleepingPillUrl: String
 )
 
 case class AppReference(server: Server)
@@ -47,9 +47,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val paperFeedbackRepository: PaperFeedbackRepository = new PaperFeedbackRepository()
     implicit val clock = Clock.systemUTC()
     val emsService: SessionService = new CachingSessionService(
-      cfg.sleepingPillUrl.map(url => new SleepingPillHttpSessionClient(url))
-          .getOrElse(new EmsHttpSessionClient(cfg.emsUrl))
-    )
+      new SleepingPillHttpSessionClient(cfg.sleepingPillUrl))
 
     val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
       _.plan(Resources(emsService, repository, paperFeedbackRepository, xa.unsafePerformSync))
@@ -67,7 +65,8 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val contextPath = propOrElse("contextPath", envOrElse("CONTEXT_PATH", "/server"))
     val home = new File(propOrElse("app.home", envOrElse("app.home", ".")))
     val emsUrl = propOrElse("emsUrl", envOrElse("EMS_URL", "http://test.javazone.no/ems/server/"))
-    val sleepingPillUrl = propOrNone("sleepingPillUrl").orElse(envOrNone("SLEEPING_PILL_URL"))
+    val sleepingPillUrl = propOrNone("sleepingPillUrl")
+        .getOrElse(envOrElse("SLEEPING_PILL_URL", "https://sleepingpill-test.javazone.no"))
 
     val dbConfig = DatabaseConfigEnv()
     AppConfig(port, contextPath, home, dbConfig, emsUrl, sleepingPillUrl)
