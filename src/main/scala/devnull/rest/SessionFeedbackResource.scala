@@ -7,16 +7,13 @@ import com.typesafe.scalalogging.LazyLogging
 import devnull.UuidFromString
 import devnull.rest.helpers.ContentTypeResolver._
 import devnull.rest.helpers.DirectiveHelper.trueOrElse
-import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson, withTemplate}
-import devnull.rest.helpers.JsonCollectionConverter.toFeedback
-import devnull.rest.helpers.ResponseWrites.{ResponseCollectionJson, ResponseJson}
+import devnull.rest.helpers.EitherDirective.{EitherDirective, fromEither, withJson}
+import devnull.rest.helpers.ResponseWrites.ResponseJson
 import devnull.rest.helpers._
 import devnull.sessions.{EventId, SessionId, SessionService}
 import devnull.storage._
 import doobie.imports.toMoreConnectionIOOps
 import doobie.util.transactor.Transactor
-import net.hamnaberg.json.collection.data.JavaReflectionData
-import net.hamnaberg.json.collection.{Item, JsonCollection}
 import unfiltered.directives.Directive
 import unfiltered.directives.Directives._
 import unfiltered.request.{GET, POST}
@@ -51,12 +48,6 @@ class SessionFeedbackResource(
       Accepted ~> {
         contentType match {
           case MIMEType("application", "json", _) => ResponseJson(feedbackId)
-          case MIMEType("application", "vnd.collection+json", _) => {
-            implicit val formats = org.json4s.DefaultFormats
-            implicit val extractor = new JavaReflectionData[FeedbackId]
-            val item = Item(java.net.URI.create(""), feedbackId, Nil)
-            ResponseCollectionJson(JsonCollection(item))
-          }
         }
       }
     }
@@ -101,7 +92,6 @@ class SessionFeedbackResource(
   EitherDirective[Either[Throwable, Option[Feedback]]] = {
     contentType match {
       case MIMEType("application", "json", _) => withJson { rating: Ratings => Feedback(null, null, voterInfo, sessionId.id, rating) }
-      case MIMEType("application", "vnd.collection+json", _) => withTemplate(template => toFeedback(template, eventId, sessionId, voterInfo))
     }
   }
 }

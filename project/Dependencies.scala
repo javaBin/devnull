@@ -16,8 +16,7 @@ object Dependencies {
     "no.arktekk"              %% "linx"                  % "0.4",
     "io.mth"                  %% "unfiltered-cors"       % "0.3",
     "net.databinder.dispatch" %% "dispatch-core"         % "0.13.3",
-    "org.json4s"              %% "json4s-native"         % "3.5.3",
-    "net.hamnaberg.rest"      %% "scala-json-collection" % "2.4"
+    "org.json4s"              %% "json4s-native"         % "3.5.3"
   )
 
   val logging = Seq(
