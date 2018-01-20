@@ -53,7 +53,6 @@ object Jetty extends InitApp[AppConfig, AppReference] {
       _.plan(Resources(emsService, repository, paperFeedbackRepository, xa.unsafePerformSync))
     }.requestLogging("access.log")
 
-    server.underlying.setSendDateHeader(true)
     server.run(_ => logger.info("Running server at " + cfg.httpPort))
     AppReference(server)
   }

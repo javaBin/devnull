@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
 
-  private lazy val unfilteredVersion = "0.8.4"
+  private lazy val unfilteredVersion = "0.9.1"
 
   val joda = Seq(
     "joda-time" % "joda-time" % "2.9.9",
@@ -10,9 +10,9 @@ object Dependencies {
   )
 
   val unfiltered = Seq(
-    "net.databinder"          %% "unfiltered-filter"     % unfilteredVersion,
-    "net.databinder"          %% "unfiltered-directives" % unfilteredVersion,
-    "net.databinder"          %% "unfiltered-jetty"      % unfilteredVersion,
+    "ws.unfiltered"           %% "unfiltered-filter"     % unfilteredVersion,
+    "ws.unfiltered"           %% "unfiltered-directives" % unfilteredVersion,
+    "ws.unfiltered"           %% "unfiltered-jetty"      % unfilteredVersion,
     "com.jteigen"             %% "linx"                  % "0.2",
     "io.mth"                  %% "unfiltered-cors"       % "0.3",
     "net.databinder.dispatch" %% "dispatch-core"         % "0.13.2",
