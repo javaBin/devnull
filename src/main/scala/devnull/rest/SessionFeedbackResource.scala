@@ -47,7 +47,7 @@ class SessionFeedbackResource(
       f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
     } yield {
       logger.debug(s"POST => $f from $voterInfo")
-      val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).run
+      val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).unsafePerformSync
       Accepted ~> {
         contentType match {
           case MIMEType("application", "json", _) => ResponseJson(feedbackId)
@@ -92,7 +92,7 @@ class SessionFeedbackResource(
           comments
         )
       }
-      Ok ~> ResponseJson(response.run)
+      Ok ~> ResponseJson(response.unsafePerformSync)
     }
     postFeedback | getFeedback
   }
