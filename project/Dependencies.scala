@@ -13,9 +13,9 @@ object Dependencies {
     "ws.unfiltered"           %% "unfiltered-filter"     % unfilteredVersion,
     "ws.unfiltered"           %% "unfiltered-directives" % unfilteredVersion,
     "ws.unfiltered"           %% "unfiltered-jetty"      % unfilteredVersion,
-    "com.jteigen"             %% "linx"                  % "0.2",
+    "no.arktekk"              %% "linx"                  % "0.4",
     "io.mth"                  %% "unfiltered-cors"       % "0.3",
-    "net.databinder.dispatch" %% "dispatch-core"         % "0.13.2",
+    "net.databinder.dispatch" %% "dispatch-core"         % "0.13.3",
     "org.json4s"              %% "json4s-native"         % "3.5.3",
     "net.hamnaberg.rest"      %% "scala-json-collection" % "2.4"
   )
@@ -34,10 +34,10 @@ object Dependencies {
     "org.tpolecat"   %% "doobie-postgres"  % doobieVersion  withSources()  exclude("postgresql", "postgresql"),
     "org.tpolecat"   %% "doobie-hikari"    % doobieVersion  withSources(),
     "org.tpolecat"   %% "doobie-scalatest" % doobieVersion  withSources(),
-    "com.zaxxer"     %  "HikariCP"         % "2.7.2"
+    "com.zaxxer"     %  "HikariCP"         % "2.7.6"
   )
 
-  val caffine =    "com.github.ben-manes.caffeine" %  "caffeine"              % "2.5.6"
+  val caffine =    "com.github.ben-manes.caffeine" %  "caffeine"              % "2.6.1"
   val scalaTest =   "org.scalatest"                %%  "scalatest"            % "3.0.4"   % Test
 
 }
