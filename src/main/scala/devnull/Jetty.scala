@@ -25,7 +25,6 @@ case class AppReference(server: Server)
 
 object Jetty extends InitApp[AppConfig, AppReference] {
 
-
   override def onStartup(): AppConfig = {
     val config: AppConfig = createConfig()
     logger.info(s"Using config $config")
@@ -45,7 +44,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
 
     val repository: FeedbackRepository = new FeedbackRepository()
     val paperFeedbackRepository: PaperFeedbackRepository = new PaperFeedbackRepository()
-    implicit val clock = Clock.systemUTC()
+    implicit val clock: Clock = Clock.systemUTC()
     val emsService: SessionService = new CachingSessionService(
       new SleepingPillHttpSessionClient(cfg.sleepingPillUrl))
 
@@ -70,7 +69,6 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val dbConfig = DatabaseConfigEnv()
     AppConfig(port, contextPath, home, dbConfig, emsUrl, sleepingPillUrl)
   }
-
 }
 
 trait InitApp[C, R] extends App with LazyLogging {
@@ -87,4 +85,5 @@ trait InitApp[C, R] extends App with LazyLogging {
   val refs = onStart(cfg)
   logger.debug("onShutdown")
   onShutdown(refs)
+
 }
