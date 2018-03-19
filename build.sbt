@@ -73,6 +73,15 @@ lazy val devnull = (project in file(".")).
     -n   include tag
     -w   package with sub packages
     */
+  ).
+  settings(
+    assemblyJarName := "devnull.jar",
+    assemblyMergeStrategy in assembly := {
+      case "META-INF/io.netty.versions.properties" => MergeStrategy.first
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    }
   )
 enablePlugins(BuildInfoPlugin)
 

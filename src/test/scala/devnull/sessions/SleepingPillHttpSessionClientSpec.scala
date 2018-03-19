@@ -7,7 +7,7 @@ import org.scalatest.{FunSpec, Matchers}
 
 class SleepingPillHttpSessionClientSpec extends FunSpec with Matchers {
 
-  describe("SleepingPillHttpSessionClient") {
+  ignore("SleepingPillHttpSessionClient") {
 
     val baseUrl = "https://sleepingpill.javazone.no/public/"
 
