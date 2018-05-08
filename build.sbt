@@ -4,9 +4,9 @@ import Dependencies._
 
 val commonSettings = Seq(
   organization := "no.java.devnull",
-  scalaVersion := "2.11.11",
+  scalaVersion := "2.12.6",
   name := "devnull",
-  crossScalaVersions := Seq("2.11.11"),
+  crossScalaVersions := Seq("2.11.11", "2.12.6"),
   scalacOptions := Seq("-deprecation", "-feature"),
   pomIncludeRepository := {
     x => false
@@ -58,7 +58,8 @@ lazy val devnull = (project in file(".")).
   settings(
     resolvers ++= Seq(
     "tpolecat" at "http://dl.bintray.com/tpolecat/maven",
-    "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
+    "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
+    Resolver.bintrayRepo("ingarabr", "oss-external")
     ),
     testOptions in Test     := Seq(testArg("-l", "devnull.tag.db"), testArg( "-l", "devnull.tag.slow")),
     testOptions in DbTests  := Seq(testArg("-n", "devnull.tag.db")),
