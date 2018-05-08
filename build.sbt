@@ -23,13 +23,6 @@ val commonSettings = Seq(
     val cred = Path.userHome / ".sbt" / "javabin.credentials"
     if (cred.exists) Seq(Credentials(cred)) else Nil
   },
-  target in App := target.value / "appmgr" / "root",
-  packageBin in Appmgr := (packageBin in Appmgr).dependsOn(packageBin in App).value,
-  appmgrLauncher in Appmgr := (appmgrLauncher in Appmgr).value.map(_.copy(command = "jetty", name = "devnull")),
-  aetherArtifact := {
-    val artifact = aetherArtifact.value
-    artifact.attach((packageBin in Appmgr).value, "appmgr", "zip")
-  },
   credentials ++= {
     (for {
     username <- Properties.envOrNone("NEXUS_USERNAME")

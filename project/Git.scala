@@ -1,5 +1,6 @@
 import sbt._
 import scala.util.Try
+import scala.sys.process._
 
 object Git {
   def branch = Try {
