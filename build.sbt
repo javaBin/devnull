@@ -5,7 +5,7 @@ inThisBuild(Seq(
   organization := "no.java.devnull",
   scalaVersion := "2.12.6",
   scalacOptions := Seq("-deprecation", "-feature"),
-  crossPaths := false,
+  crossPaths := false
 ))
 
 lazy val devnull = (project in file(".")).
@@ -24,15 +24,29 @@ lazy val devnull = (project in file(".")).
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
-    },
+    }
+  ).
+  settings(
+    mainClass := Some("devnull.Jetty"),
+    dockerRepository := Some("eu.gcr.io"),
+    dockerUsername := Some("javabin-prod"),
+    maintainer in Docker := "javaBin",
+    packageName in Docker := "devnull",
+    dockerBaseImage := "openjdk:8",
+    dockerExposedPorts := Seq(8082),
+    dockerUpdateLatest := true
+  ).
+  settings(
+    buildInfoKeys := Seq[BuildInfoKey](
+      scalaVersion,
+      BuildInfoKey.action("version") { (version in ThisBuild ).value },
+      BuildInfoKey.action("buildTime") { System.currentTimeMillis },
+      BuildInfoKey.action("branch"){ Git.branch },
+      BuildInfoKey.action("sha"){ Git.sha }
+    ),
     buildInfoPackage := "devnull"
   ).
-  enablePlugins(BuildInfoPlugin)
+  enablePlugins(BuildInfoPlugin, JavaAppPackaging, DockerPlugin)
 
-buildInfoKeys := Seq[BuildInfoKey](
-  scalaVersion,
-  BuildInfoKey.action("version") { (version in ThisBuild ).value },
-  BuildInfoKey.action("buildTime") { System.currentTimeMillis },
-  BuildInfoKey.action("branch"){ Git.branch },
-  BuildInfoKey.action("sha"){ Git.sha }
-)
+
+
