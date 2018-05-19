@@ -1,72 +1,21 @@
-import scala.util.Properties
-import aether.AetherKeys._
 import Dependencies._
+import sbtbuildinfo.BuildInfoPlugin.autoImport.buildInfoPackage
 
-val commonSettings = Seq(
+inThisBuild(Seq(
   organization := "no.java.devnull",
   scalaVersion := "2.12.6",
-  name := "devnull",
-  crossScalaVersions := Seq("2.11.11", "2.12.6"),
   scalacOptions := Seq("-deprecation", "-feature"),
-  pomIncludeRepository := {
-    x => false
-  },
   crossPaths := false,
-  publishTo := {
-    if (isSnapshot.value) {
-      Some("JavaBin Nexus repo" at "http://nye.java.no/nexus/content/repositories/snapshots")
-    } else {
-      Some("JavaBin Nexus repo" at "http://nye.java.no/nexus/content/repositories/releases")
-    }
-  },
-  credentials ++= {
-    val cred = Path.userHome / ".sbt" / "javabin.credentials"
-    if (cred.exists) Seq(Credentials(cred)) else Nil
-  },
-  credentials ++= {
-    (for {
-    username <- Properties.envOrNone("NEXUS_USERNAME")
-    password <- Properties.envOrNone("NEXUS_PASSWORD")
-  } yield
-    Credentials(
-      "Sonatype Nexus Repository Manager",
-      "nye.java.no",
-      username,
-      password
-    )).toSeq
-  }
-
-) ++ overridePublishBothSettings
-
-lazy val AllTests = config("all") extend Test
-lazy val DbTests = config("db") extend Test
-def testArg(key: String, value: String ) = Tests.Argument(TestFrameworks.ScalaTest, key, value)
+))
 
 lazy val devnull = (project in file(".")).
-  configs(AllTests, DbTests).
-  settings(commonSettings).
-  settings(inConfig(AllTests)(Defaults.testTasks)).
-  settings(inConfig(DbTests)(Defaults.testTasks)).
-  settings(Revolver.settings).
+  configs(TestSettings.Config : _*).
+  settings(TestSettings.Settings: _*).
   settings(
-    resolvers ++= Seq(
-    "tpolecat" at "http://dl.bintray.com/tpolecat/maven",
-    "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
-    Resolver.bintrayRepo("ingarabr", "oss-external")
-    ),
-    testOptions in Test     := Seq(testArg("-l", "devnull.tag.db"), testArg( "-l", "devnull.tag.slow")),
-    testOptions in DbTests  := Seq(testArg("-n", "devnull.tag.db")),
-    testOptions in AllTests := Seq(),
-    parallelExecution in DbTests := false,
-    parallelExecution in AllTests := false,
+    name := "devnull",
+    resolvers ++= Dependencies.ProjectResolvers,
     libraryDependencies ++= joda ++ unfiltered ++ database ++ logging ++
-        Seq(caffine, scalaTest)
-    /*
-    Arguments: http://www.scalatest.org/user_guide/using_the_runner
-    -l   exclude tag
-    -n   include tag
-    -w   package with sub packages
-    */
+      Seq(caffine, scalaTest)
   ).
   settings(
     assemblyJarName := "devnull.jar",
@@ -75,11 +24,10 @@ lazy val devnull = (project in file(".")).
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
-    }
-  )
-enablePlugins(BuildInfoPlugin)
-
-buildInfoPackage := "devnull"
+    },
+    buildInfoPackage := "devnull"
+  ).
+  enablePlugins(BuildInfoPlugin)
 
 buildInfoKeys := Seq[BuildInfoKey](
   scalaVersion,

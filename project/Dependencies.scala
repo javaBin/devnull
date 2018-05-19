@@ -2,6 +2,12 @@ import sbt._
 
 object Dependencies {
 
+  val ProjectResolvers = Seq(
+    "tpolecat" at "http://dl.bintray.com/tpolecat/maven",
+    "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
+    Resolver.bintrayRepo("ingarabr", "oss-external")
+  )
+
   private lazy val unfilteredVersion = "0.9.1"
 
   val joda = Seq(
