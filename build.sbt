@@ -1,3 +1,5 @@
+import java.time.{ZoneOffset, ZonedDateTime}
+
 import Dependencies._
 import sbtbuildinfo.BuildInfoPlugin.autoImport.buildInfoPackage
 
@@ -40,7 +42,7 @@ lazy val devnull = (project in file(".")).
     buildInfoKeys := Seq[BuildInfoKey](
       scalaVersion,
       BuildInfoKey.action("version") { (version in ThisBuild ).value },
-      BuildInfoKey.action("buildTime") { System.currentTimeMillis },
+      BuildInfoKey.action("buildTime") { ZonedDateTime.now(ZoneOffset.UTC) },
       BuildInfoKey.action("branch"){ Git.branch },
       BuildInfoKey.action("sha"){ Git.sha }
     ),

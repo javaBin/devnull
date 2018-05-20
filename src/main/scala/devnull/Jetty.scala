@@ -28,6 +28,8 @@ object Jetty extends InitApp[AppConfig, AppReference] {
   override def onStartup(): AppConfig = {
     val config: AppConfig = createConfig()
     logger.info(s"Using config $config")
+    logger.info(s"Buildinfo ${devnull.BuildInfo}")
+
     Migration.runMigration(config.databaseConfig)
     config
   }
