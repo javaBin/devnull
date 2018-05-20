@@ -14,7 +14,6 @@ import scalaz.concurrent.Task
 
 case class AppConfig(
     httpPort: Int,
-    httpContextPath: String,
     home: File,
     databaseConfig: DatabaseConfig,
     emsUrl: String,
@@ -50,9 +49,9 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val emsService: SessionService = new CachingSessionService(
       new SleepingPillHttpSessionClient(cfg.sleepingPillUrl))
 
-    val server = unfiltered.jetty.Server.http(cfg.httpPort).context(cfg.httpContextPath) {
-      _.plan(Resources(emsService, repository, paperFeedbackRepository, xa.unsafePerformSync))
-    }.requestLogging("access.log")
+    val server = Server.http(cfg.httpPort)
+      .plan(Resources(emsService, repository, paperFeedbackRepository, xa.unsafePerformSync))
+      .requestLogging("access.log")
 
     server.run(_ => logger.info("Running server at " + cfg.httpPort))
     AppReference(server)
@@ -62,14 +61,13 @@ object Jetty extends InitApp[AppConfig, AppReference] {
 
   def createConfig(): AppConfig = {
     val port = envOrElse("PORT", "8082").toInt
-    val contextPath = propOrElse("contextPath", envOrElse("CONTEXT_PATH", "/server"))
     val home = new File(propOrElse("app.home", envOrElse("app.home", ".")))
     val emsUrl = propOrElse("emsUrl", envOrElse("EMS_URL", "http://test.javazone.no/ems/server/"))
     val sleepingPillUrl = propOrNone("sleepingPillUrl")
         .getOrElse(envOrElse("SLEEPING_PILL_URL", "https://sleepingpill-test.javazone.no"))
 
     val dbConfig = DatabaseConfigEnv()
-    AppConfig(port, contextPath, home, dbConfig, emsUrl, sleepingPillUrl)
+    AppConfig(port, home, dbConfig, emsUrl, sleepingPillUrl)
   }
 }
 

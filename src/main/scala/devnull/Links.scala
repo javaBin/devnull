@@ -4,6 +4,7 @@ import linx.Root
 
 object Links {
 
+  val AppRoot = Root
   val Events = Root / "events"
   val Event = Events / 'eventId
 

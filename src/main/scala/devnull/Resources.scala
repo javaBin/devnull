@@ -33,7 +33,7 @@ class Resources(feedbackResource: SessionFeedbackResource, eventFeedbackResource
   )
 
   override def intent: Intent = cors(Intent {
-    case Root() => PingResource.handlePing()
+    case Links.AppRoot() => PingResource.handlePing()
     case Links.AppInfo() => AppInfo.handelAppInfo()
     case Links.Event(eventId) => eventFeedbackResource.handleFeedback(eventId)
     case Links.Feedbacks(eventId, sessionId) => feedbackResource.handleFeedbacks(eventId, sessionId)
