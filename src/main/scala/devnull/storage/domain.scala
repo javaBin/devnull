@@ -64,7 +64,9 @@ object DatabaseConfigEnv {
   def apply(): DatabaseConfig = {
     DatabaseConfig(
       database = propOrElse("dbName", envOrElse("DB_NAME", "devnull")),
-      username = propOrElse("dbUsername", envOrElse("DB_USERNAME", "devnull")),
+      host = propOrElse("dbHost", envOrElse("DB_HOST", "localhost")),
+      port = propOrElse("dbPort", envOrElse("DB_PORT", "5432")).toInt,
+      username = propOrElse("dbUsername", envOrElse("DB_USER", "devnull")),
       password = SecretString(propOrElse("dbPassword", envOrElse("DB_PASSWORD", "devnull")))
     )
   }
