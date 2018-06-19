@@ -27,6 +27,11 @@ Unit test, database test and test that is tagged as slow.
 sbt all:test
 ````
 
+Setup a local database with docker:
+```
+docker run --name devnull -e POSTGRES_PASSWORD=devnull -e POSTGRES_USER=devnull -p 5432:5432 -d postgres
+```
+
 Services
 ========
 

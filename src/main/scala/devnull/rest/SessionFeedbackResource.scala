@@ -1,8 +1,8 @@
 package devnull.rest
 
 import java.util.UUID
-import javax.servlet.http.HttpServletRequest
 
+import javax.servlet.http.HttpServletRequest
 import com.typesafe.scalalogging.LazyLogging
 import devnull.UuidFromString
 import devnull.rest.helpers.ContentTypeResolver._
@@ -18,7 +18,6 @@ import unfiltered.directives.Directive
 import unfiltered.directives.Directives._
 import unfiltered.request.{GET, POST}
 import unfiltered.response._
-
 import scalaz.concurrent.Task
 
 class SessionFeedbackResource(
@@ -30,33 +29,41 @@ class SessionFeedbackResource(
 
   type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
+  def getOrRespond[R, A](opt:Option[A], orElse: => ResponseFunction[R]) = opt.map(success).getOrElse(error(orElse))
+
   def handleFeedbacks(eventIdStr: String, sessionIdStr: String): ResponseDirective = {
     val postFeedback = for {
       _ <- POST
       voterInfo <- VoterIdentification.identify()
-      contentType <- withContentTypes(List(MIMEType.Json, MIMEType.CollectionJson))
+      _ <- withContentTypes(List(MIMEType.Json))
       eventId <- fromEither(UuidFromString(eventIdStr).right.map(EventId.apply))
       sessionId <- fromEither(UuidFromString(sessionIdStr).right.map(SessionId.apply))
-      session <- getOrElse(sessionService.getSession(eventId, sessionId), NotFound ~> ResponseString("Didn't find the session"))
-      _ <- trueOrElse(sessionService.canRegisterFeedback(eventId, sessionId), Forbidden ~> ResponseString("Feedback not open yet!"))
-      parsed <- parseFeedback(contentType, session.eventId, session.sessionId, voterInfo)
-      feedback <- fromEither(parsed)
-      f <- getOrElse(feedback, BadRequest ~> ResponseString("Feedback did not contain all required fields."))
+      session <-
+      getOrRespond(
+        sessionService.getSession(eventId, sessionId),
+        NotFound ~> ResponseString("Didn't find the session")
+      )
+      _ <- trueOrElse(
+        sessionService.canRegisterFeedback(eventId, sessionId),
+        Forbidden ~> ResponseString("Feedback not open yet!")
+      )
+      parsed <- parseFeedback(session.eventId, session.sessionId, voterInfo)
+      optFeedback <- fromEither(parsed)
+      feedback <- getOrRespond(
+        optFeedback,
+        BadRequest ~> ResponseString("Feedback did not contain all required fields.")
+      )
     } yield {
-      logger.debug(s"POST => $f from $voterInfo")
-      val feedbackId: FeedbackId = feedbackRepository.insertFeedback(f).transact(xa).unsafePerformSync
-      Accepted ~> {
-        contentType match {
-          case MIMEType("application", "json", _) => ResponseJson(feedbackId)
-        }
-      }
+      logger.info(s"POST => $feedback from $voterInfo")
+      val feedbackId: FeedbackId = feedbackRepository.insertFeedback(feedback).transact(xa).unsafePerformSync
+      Accepted ~> ResponseJson(feedbackId)
     }
 
     val getFeedback = for {
       _ <- GET
       eventId <- fromEither(UuidFromString(eventIdStr).right.map(EventId.apply))
       sessionId <- fromEither(UuidFromString(sessionIdStr).right.map(SessionId.apply))
-      _ <- getOrElse(sessionService.getSession(eventId, sessionId), NotFound ~> ResponseString("Didn't find the session"))
+      _ <- getOrRespond(sessionService.getSession(eventId, sessionId), NotFound ~> ResponseString("Didn't find the session"))
     } yield {
       val sId: UUID = sessionId.id
       val eId: UUID = eventId.id
@@ -88,11 +95,9 @@ class SessionFeedbackResource(
     postFeedback | getFeedback
   }
 
-  def parseFeedback(contentType: MIMEType, eventId: EventId, sessionId: SessionId, voterInfo: VoterInfo):
+  def parseFeedback(eventId: EventId, sessionId: SessionId, voterInfo: VoterInfo):
   EitherDirective[Either[Throwable, Option[Feedback]]] = {
-    contentType match {
-      case MIMEType("application", "json", _) => withJson { rating: Ratings => Feedback(null, null, voterInfo, sessionId.id, rating) }
-    }
+    withJson { rating: Ratings => Feedback(null, null, voterInfo, sessionId.id, rating) }
   }
 }
 

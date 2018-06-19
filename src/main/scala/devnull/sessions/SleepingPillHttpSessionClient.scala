@@ -30,6 +30,7 @@ class SleepingPillHttpSessionClient(val baseUrl: String)
     try {
       val sessionJson =
         Await.result(httpClient(request OK SessionJson), 15.seconds)
+      logger.debug(s"Sessions ids from sleeping pill ${sessionJson.underlying.map(_.sessionId)}")
       sessionJson.findSession(sessionId)
     } catch {
       case t: Throwable =>

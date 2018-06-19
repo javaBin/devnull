@@ -62,7 +62,7 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val port = envOrElse("PORT", "8082").toInt
     val home = new File(propOrElse("app.home", envOrElse("app.home", ".")))
     val sleepingPillUrl = propOrNone("sleepingPillUrl")
-        .getOrElse(envOrElse("SLEEPING_PILL_URL", "https://sleepingpill-test.javazone.no"))
+        .getOrElse(envOrElse("SLEEPING_PILL_URL", "https://test-sleepingpill.javazone.no"))
 
     val dbConfig = DatabaseConfigEnv()
     AppConfig(port, home, dbConfig, sleepingPillUrl)
