@@ -11,6 +11,13 @@ sealed trait Id {
   override def toString: String =
     if (useDash) id.toString
     else id.toString.replace("-", "")
+
+  override def hashCode(): Int = id.hashCode()
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case otherId: Id if other.getClass == this.getClass => otherId.id == this.id
+    case _ => false
+  }
 }
 
 case class EventId(id: UUID, useDash: Boolean = true) extends Id

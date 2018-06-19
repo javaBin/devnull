@@ -16,7 +16,6 @@ case class AppConfig(
     httpPort: Int,
     home: File,
     databaseConfig: DatabaseConfig,
-    emsUrl: String,
     sleepingPillUrl: String
 )
 
@@ -62,12 +61,11 @@ object Jetty extends InitApp[AppConfig, AppReference] {
   def createConfig(): AppConfig = {
     val port = envOrElse("PORT", "8082").toInt
     val home = new File(propOrElse("app.home", envOrElse("app.home", ".")))
-    val emsUrl = propOrElse("emsUrl", envOrElse("EMS_URL", "http://test.javazone.no/ems/server/"))
     val sleepingPillUrl = propOrNone("sleepingPillUrl")
         .getOrElse(envOrElse("SLEEPING_PILL_URL", "https://sleepingpill-test.javazone.no"))
 
     val dbConfig = DatabaseConfigEnv()
-    AppConfig(port, home, dbConfig, emsUrl, sleepingPillUrl)
+    AppConfig(port, home, dbConfig, sleepingPillUrl)
   }
 }
 

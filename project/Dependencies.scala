@@ -21,7 +21,7 @@ object Dependencies {
     "ws.unfiltered"           %% "unfiltered-jetty"      % unfilteredVersion,
     "no.arktekk"              %% "linx"                  % "0.4",
     "io.mth"                  %% "unfiltered-cors"       % "0.4-IA1" exclude("net.databinder", "*"),
-    "net.databinder.dispatch" %% "dispatch-core"         % "0.13.3",
+    "org.dispatchhttp"        %% "dispatch-core"         % "0.14.0",
     "org.json4s"              %% "json4s-native"         % "3.5.3"
   )
 
