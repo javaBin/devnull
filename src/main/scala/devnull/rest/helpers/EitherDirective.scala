@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest
 
 import devnull.rest.dto.FaultResponse
 import devnull.rest.helpers.ResponseWrites.ResponseJson
-import net.hamnaberg.json.collection.{NativeJsonCollectionParser, Template}
 import org.json4s.{JValue, StreamInput}
 import org.json4s.native.JsonMethods
 import unfiltered.directives.Directive
@@ -15,11 +14,6 @@ object EitherDirective {
 
   type EitherDirective[T] = Directive[HttpServletRequest, ResponseFunction[Any], T]
   implicit val formats = org.json4s.DefaultFormats
-  def withTemplate[T](fromTemplate: (Template) => T): EitherDirective[Either[Throwable, T]] = {
-    for {
-      template <- inputStream.map(is => NativeJsonCollectionParser.parseTemplate(is))
-    } yield template.right.map(fromTemplate)
-  }
 
   def withJson[T, P : Manifest](t: P => T):EitherDirective[Either[Throwable, Option[T]]] = {
     inputStream.map(is => {

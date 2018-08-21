@@ -19,7 +19,7 @@ object AppInfo {
         Ok ~> ResponseJson(AppInfoContent(
           devnull.BuildInfo.scalaVersion,
           devnull.BuildInfo.version,
-          new Date(devnull.BuildInfo.buildTime),
+          devnull.BuildInfo.buildTime,
           devnull.BuildInfo.branch,
           devnull.BuildInfo.sha
         ))
@@ -31,7 +31,7 @@ object AppInfo {
   case class AppInfoContent(
       scalaVersion: String,
       version: String,
-      buildTime: Date,
+      buildTime: String,
       branch: String,
       sha: String)
 

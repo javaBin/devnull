@@ -1,9 +1,5 @@
-addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.21")
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.9.0")
 
-addSbtPlugin("net.hamnaberg.sbt" % "sbt-appassembler" % "0.6.0")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.6")
 
-addSbtPlugin("net.hamnaberg.sbt" % "sbt-appmgr" % "0.5.0")
-
-addSbtPlugin("io.spray" % "sbt-revolver" % "0.7.2")
-
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.5.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.4")

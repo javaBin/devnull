@@ -33,7 +33,9 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
       paperFeedbacks <- toJson[FeedbackWrapper]
     } yield {
       val pfe = paperFeedbacks.feedbacks.map { e => ToPaperFeedback(eventId, e) }
-      pfe.foreach { pfb => paperFeedbackRepository.insertPaperFeedback(pfb).transact(xa).run }
+      pfe.foreach { pfb =>
+        paperFeedbackRepository.insertPaperFeedback(pfb).transact(xa).unsafePerformSync
+      }
       Accepted ~> ResponseJson(FeedbackResponse(pfe.size))
     }
   }
