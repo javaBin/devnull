@@ -36,5 +36,25 @@ case class Session(
     eventId: EventId,
     sessionId: SessionId,
     startTime: LocalDateTime,
-    endTime: LocalDateTime
+    endTime: LocalDateTime,
+    sessionType: SessionType
 )
+
+sealed trait SessionType
+case object Workshop                   extends SessionType
+case object Presentation               extends SessionType
+case object LightningTalk              extends SessionType
+case class UnknownSession(typ: String) extends SessionType
+
+object SessionType {
+
+  def apply(str: String): SessionType = {
+    str match {
+      case "workshop"       => Workshop
+      case "presentation"   => Presentation
+      case "lightning-talk" => LightningTalk
+      case other            => UnknownSession(other)
+    }
+  }
+
+}

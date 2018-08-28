@@ -25,11 +25,11 @@ class SleepingPillHttpSessionClientSpec extends FunSpec with Matchers {
       session.get.eventId should be(eventId)
     }
 
-    ignore("should be able to fetch session for new api aaa") {
+    it("should be able to fetch session for new api") {
       val eventId =
         EventId(UUID.fromString("30d5c2f1-cb21-4fc8-b064-9a44fdf3b4bf"), false)
       val sessionId =
-        SessionId(UUID.fromString("31d7e476-662f-48f8-bcdf-cac88d9ff742"), false)
+        SessionId(UUID.fromString("32e6aca9-4d93-4fc1-bc05-073c68bc681e"), false)
 
       val client  = new SleepingPillHttpSessionClient(baseUrl)
       val session = client.session(eventId, sessionId)
@@ -48,7 +48,8 @@ class SleepingPillHttpSessionClientSpec extends FunSpec with Matchers {
           |   "sessionId": "$sid",
           |   "conferenceId": "$eid",
           |   "startTimeZulu": "$startTime",
-          |   "endTimeZulu": "$endTime"
+          |   "endTimeZulu": "$endTime",
+          |   "format": "workshop"
           | }]
           |} """.stripMargin)
 
@@ -68,18 +69,19 @@ class SleepingPillHttpSessionClientSpec extends FunSpec with Matchers {
            |   "sessionId": "$sid1",
            |   "conferenceId": "$eid",
            |   "startTimeZulu": "$startTime",
-           |   "endTimeZulu": "$endTime"
+           |   "endTimeZulu": "$endTime",
+           |   "format": "presentation"
            | },
            | {
            |   "sessionId": "$sid2",
-           |   "conferenceId": "$eid"
+           |   "conferenceId": "$eid",
+           |   "format": "presentation"
            | }]
            |} """.stripMargin)
 
-      val res: List[Session] = SessionJson.parse(input)
+      val sessions: List[Session] = SessionJson.parse(input)
 
-      res should have length 1
-
+      sessions should have length 1
     }
   }
 

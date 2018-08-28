@@ -62,12 +62,14 @@ object SessionJson extends (Response => SessionJson) {
       JField("conferenceId", JString(cid))    <- sessions
       JField("startTimeZulu", JString(start)) <- sessions
       JField("endTimeZulu", JString(end))     <- sessions
+      JField("format", JString(formatStr))    <- sessions
     } yield
       Session(
         EventId(UuidFromString(cid).right.get),
         SessionId(UuidFromString(sid).right.get),
         UtcLocalDateTime.parse(start),
-        UtcLocalDateTime.parse(end)
+        UtcLocalDateTime.parse(end),
+        SessionType(formatStr)
       )
   }
 }

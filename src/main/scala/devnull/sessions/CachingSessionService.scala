@@ -29,8 +29,15 @@ class CachingSessionService(sessionClient: SessionClient, bufferTime: Int = 10)(
 
   override def canRegisterFeedback(eventId: EventId, sessionId: SessionId): Boolean = {
     getSession(eventId, sessionId) match {
-      case Some(s) =>
-        UtcLocalDateTime.now().isAfter(s.endTime.minusMinutes(bufferTime))
+      case Some(session) =>
+        session.sessionType match {
+          case Workshop =>
+            val sessionDate = session.startTime.toLocalDate
+            val today       = UtcLocalDateTime.today()
+            sessionDate.equals(today) || sessionDate.isAfter(today)
+          case _ =>
+            UtcLocalDateTime.now().isAfter(session.endTime.minusMinutes(bufferTime))
+        }
 
       case None => false
     }
