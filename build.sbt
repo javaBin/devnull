@@ -3,23 +3,25 @@ import java.time.{ZoneOffset, ZonedDateTime}
 import Dependencies._
 import sbtbuildinfo.BuildInfoPlugin.autoImport.buildInfoPackage
 
-inThisBuild(Seq(
-  organization := "no.java.devnull",
-  scalaVersion := "2.12.6",
-  scalacOptions := Seq("-deprecation", "-feature"),
-  crossPaths := false
-))
+inThisBuild(
+  Seq(
+    organization := "no.java.devnull",
+    scalaVersion := "2.12.6",
+    scalacOptions := Seq("-deprecation", "-feature"),
+    crossPaths := false
+  )
+)
 
-lazy val devnull = (project in file(".")).
-  configs(TestSettings.Config : _*).
-  settings(TestSettings.Settings: _*).
-  settings(
+lazy val devnull = (project in file("."))
+  .configs(TestSettings.Config: _*)
+  .settings(TestSettings.Settings: _*)
+  .settings(
     name := "devnull",
     resolvers ++= Dependencies.ProjectResolvers,
     libraryDependencies ++= joda ++ unfiltered ++ database ++ logging ++
       Seq(caffine, scalaTest)
-  ).
-  settings(
+  )
+  .settings(
     assemblyJarName := "devnull.jar",
     assemblyMergeStrategy in assembly := {
       case "META-INF/io.netty.versions.properties" => MergeStrategy.first
@@ -27,8 +29,8 @@ lazy val devnull = (project in file(".")).
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
     }
-  ).
-  settings(
+  )
+  .settings(
     mainClass := Some("devnull.Jetty"),
     dockerRepository := Some("eu.gcr.io"),
     dockerUsername := Some("javabin-prod"),
@@ -37,18 +39,23 @@ lazy val devnull = (project in file(".")).
     dockerBaseImage := "openjdk:8",
     dockerExposedPorts := Seq(8082),
     dockerUpdateLatest := true
-  ).
-  settings(
+  )
+  .settings(
     buildInfoKeys := Seq[BuildInfoKey](
       scalaVersion,
-      BuildInfoKey.action("version") { (version in ThisBuild ).value },
-      BuildInfoKey.action("buildTime") { ZonedDateTime.now(ZoneOffset.UTC) },
-      BuildInfoKey.action("branch"){ Git.branch },
-      BuildInfoKey.action("sha"){ Git.sha }
+      BuildInfoKey.action("version") {
+        (version in ThisBuild).value
+      },
+      BuildInfoKey.action("buildTime") {
+        ZonedDateTime.now(ZoneOffset.UTC)
+      },
+      BuildInfoKey.action("branch") {
+        Git.branch
+      },
+      BuildInfoKey.action("sha") {
+        Git.sha
+      }
     ),
     buildInfoPackage := "devnull"
-  ).
-  enablePlugins(BuildInfoPlugin, JavaAppPackaging, DockerPlugin)
-
-
-
+  )
+  .enablePlugins(BuildInfoPlugin, JavaAppPackaging, DockerPlugin)

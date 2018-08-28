@@ -8,9 +8,11 @@ import unfiltered.response.UnsupportedMediaType
 
 object ContentTypeResolver {
 
-  def withContentTypes(ct: List[MIMEType]) = commit(when {
-    case RequestContentType(contentType) if ct.exists(m => m.includes(contentType)) => contentType
-  }.orElse(UnsupportedMediaType))
+  def withContentTypes(ct: List[MIMEType]) =
+    commit(when {
+      case RequestContentType(contentType) if ct.exists(m => m.includes(contentType)) =>
+        contentType
+    }.orElse(UnsupportedMediaType))
 
 }
 

@@ -19,11 +19,14 @@ import io.mth.unfiltered.cors.{Cors, CorsConfig}
 import scala.language.implicitConversions
 import scalaz.concurrent.Task
 
-class Resources(feedbackResource: SessionFeedbackResource, eventFeedbackResource: EventFeedbackResource) extends Plan {
+class Resources(
+    feedbackResource: SessionFeedbackResource,
+    eventFeedbackResource: EventFeedbackResource
+) extends Plan {
 
   val cors = Cors(
     CorsConfig(
-      (origin: String) => {true},
+      (origin: String) => { true },
       (method: String) => List("POST", "GET").contains(method),
       (headers: List[String]) => true,
       allowCredentials = true,
@@ -32,22 +35,27 @@ class Resources(feedbackResource: SessionFeedbackResource, eventFeedbackResource
     )
   )
 
-  override def intent: Intent = cors(Intent {
-    case Links.AppRoot() => PingResource.handlePing()
-    case Links.AppInfo() => AppInfo.handelAppInfo()
-    case Links.Event(eventId) => eventFeedbackResource.handleFeedback(eventId)
-    case Links.Feedbacks(eventId, sessionId) => feedbackResource.handleFeedbacks(eventId, sessionId)
-    case _ => failure(NotFound)
-  })
+  override def intent: Intent =
+    cors(Intent {
+      case Links.AppRoot()      => PingResource.handlePing()
+      case Links.AppInfo()      => AppInfo.handelAppInfo()
+      case Links.Event(eventId) => eventFeedbackResource.handleFeedback(eventId)
+      case Links.Feedbacks(eventId, sessionId) =>
+        feedbackResource.handleFeedbacks(eventId, sessionId)
+      case _ => failure(NotFound)
+    })
 
   val Intent = Mapping[String] {
     case ContextPath(_, path) => path
   }
 
   case class Mapping[X](from: HttpRequest[HttpServletRequest] => X) {
-    type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
+    type ResponseDirective =
+      Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
-    def apply(intent: PartialFunction[X, ResponseDirective]): unfiltered.Cycle.Intent[HttpServletRequest, Any] =
+    def apply(
+        intent: PartialFunction[X, ResponseDirective]
+    ): unfiltered.Cycle.Intent[HttpServletRequest, Any] =
       Directive.Intent {
         case req if intent.isDefinedAt(from(req)) => intent(from(req))
       }
@@ -61,10 +69,16 @@ object Resources {
       emsService: SessionService,
       feedbackRepository: FeedbackRepository,
       paperFeedbackRepository: PaperFeedbackRepository,
-      xa: Transactor[Task]) = {
+      xa: Transactor[Task]
+  ) = {
     val feedbackResource: SessionFeedbackResource = new SessionFeedbackResource(
-      emsService, feedbackRepository, paperFeedbackRepository, xa)
-    val eventFeedbackResource: EventFeedbackResource = new EventFeedbackResource(paperFeedbackRepository, xa)
+      emsService,
+      feedbackRepository,
+      paperFeedbackRepository,
+      xa
+    )
+    val eventFeedbackResource: EventFeedbackResource =
+      new EventFeedbackResource(paperFeedbackRepository, xa)
     new Resources(feedbackResource, eventFeedbackResource)
   }
 

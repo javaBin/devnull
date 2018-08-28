@@ -49,7 +49,9 @@ class PaperFeedbackRepository {
       """.query[PaperFeedback]
     }
 
-    def selectAvgFeedbackForEvent(eventId: UUID): Query0[(PaperRatingResult, Option[Double])] = {
+    def selectAvgFeedbackForEvent(
+        eventId: UUID
+    ): Query0[(PaperRatingResult, Option[Double])] = {
       sql"""
         SELECT
             avg(green)        :: FLOAT,
@@ -66,11 +68,15 @@ class PaperFeedbackRepository {
     Queries.insert(fb).withUniqueGeneratedKeys[FeedbackId]("id")
   }
 
-  def selectFeedbackForSession(sessionId: UUID): hi.ConnectionIO[Option[PaperFeedback]] = {
+  def selectFeedbackForSession(
+      sessionId: UUID
+  ): hi.ConnectionIO[Option[PaperFeedback]] = {
     Queries.selectFeedback(sessionId).option
   }
 
-  def selectAvgFeedbackForEvent(eventId: UUID): hi.ConnectionIO[Option[(PaperRatingResult, Option[Double])]] = {
+  def selectAvgFeedbackForEvent(
+      eventId: UUID
+  ): hi.ConnectionIO[Option[(PaperRatingResult, Option[Double])]] = {
     Queries.selectAvgFeedbackForEvent(eventId).option
   }
 }

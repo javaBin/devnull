@@ -14,35 +14,35 @@ class ContentTypeResolverSpec extends FunSpec with Matchers {
 
   describe("context-type") {
     it("should return with success without charset") {
-      val result: Result[ResponseFunction[Any], MIMEType] = withContentTypes(List(MIMEType.Json))
-          .apply(new HttpRequestStub() {
-            override def headers(name: String): Iterator[String] = name match {
-              case "Content-Type" => Iterator("application/json")
-              case _ => Iterator.empty
-            }
-          })
+      val result: Result[ResponseFunction[Any], MIMEType] =
+        withContentTypes(List(MIMEType.Json)).apply(new HttpRequestStub() {
+          override def headers(name: String): Iterator[String] = name match {
+            case "Content-Type" => Iterator("application/json")
+            case _              => Iterator.empty
+          }
+        })
       result should be(Success(MIMEType.Json))
     }
 
     it("should return with success with charset") {
-      val result: Result[ResponseFunction[Any], MIMEType] = withContentTypes(List(MIMEType.Json))
-          .apply(new HttpRequestStub() {
-            override def headers(name: String): Iterator[String] = name match {
-              case "Content-Type" => Iterator("application/json; charset=UTF-8")
-              case _ => Iterator.empty
-            }
-          })
+      val result: Result[ResponseFunction[Any], MIMEType] =
+        withContentTypes(List(MIMEType.Json)).apply(new HttpRequestStub() {
+          override def headers(name: String): Iterator[String] = name match {
+            case "Content-Type" => Iterator("application/json; charset=UTF-8")
+            case _              => Iterator.empty
+          }
+        })
       result should be(Success(MIMEType.Json.copy(params = Map("charset" -> "UTF-8"))))
     }
 
     it("should return with failure") {
-      val result: Result[ResponseFunction[Any], MIMEType] = withContentTypes(List(MIMEType.Json))
-          .apply(new HttpRequestStub() {
-            override def headers(name: String): Iterator[String] = name match {
-              case "Content-Type" => Iterator("does/notexist")
-              case _ => Iterator.empty
-            }
-          })
+      val result: Result[ResponseFunction[Any], MIMEType] =
+        withContentTypes(List(MIMEType.Json)).apply(new HttpRequestStub() {
+          override def headers(name: String): Iterator[String] = name match {
+            case "Content-Type" => Iterator("does/notexist")
+            case _              => Iterator.empty
+          }
+        })
       result should be(Error(UnsupportedMediaType))
     }
   }

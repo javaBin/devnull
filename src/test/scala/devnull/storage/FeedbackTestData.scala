@@ -12,19 +12,15 @@ object FeedbackTestData {
       session: UUID = UUID.randomUUID(),
       source: String = UUID.randomUUID().toString,
       voterId: String = "1234",
-      comments: Option[String] = Some("A Comment")): Feedback = {
-    val info = VoterInfo(voterId, "127.0.0.1", "spec")
+      comments: Option[String] = Some("A Comment")
+  ): Feedback = {
+    val info    = VoterInfo(voterId, "127.0.0.1", "spec")
     val ratings = Ratings(rating().get, rating(), rating(), rating(), comments)
     Feedback(null, null, info, session, ratings)
   }
 
-  def createPaperFeedback(eventId: UUID = UUID.randomUUID()) = PaperFeedback(
-    null,
-    null,
-    eventId,
-    UUID.randomUUID(),
-    PaperRating(1, 2, 3),
-    4)
+  def createPaperFeedback(eventId: UUID = UUID.randomUUID()) =
+    PaperFeedback(null, null, eventId, UUID.randomUUID(), PaperRating(1, 2, 3), 4)
 
   private def rating() = {
     Some(random.nextInt(5).toShort)

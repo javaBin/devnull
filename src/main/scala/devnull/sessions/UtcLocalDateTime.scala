@@ -11,4 +11,3 @@ object UtcLocalDateTime {
     LocalDateTime.ofInstant(Instant.parse(utcTime), ZoneOffset.UTC)
 
 }
-

@@ -6,5 +6,3 @@ trait SessionService {
   def canRegisterFeedback(eventId: EventId, sessionId: SessionId): Boolean
 
 }
-
-
