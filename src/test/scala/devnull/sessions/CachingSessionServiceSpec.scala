@@ -28,6 +28,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
               Presentation
             )
         ),
+        true,
         5
       )
       repository.getSession(EventId(sId.id), SessionId(eId.id)) should not be empty
@@ -45,6 +46,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
               Presentation
             )
         ),
+        true,
         5
       )
       repository.canRegisterFeedback(eId, sId) should be(true)
@@ -62,6 +64,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
               Presentation
             )
         ),
+        true,
         5
       )
       repository.canRegisterFeedback(eId, sId) should be(true)
@@ -73,6 +76,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
           Some(
             Session(eId, sId, now().minusMinutes(30), now().plusMinutes(4), Presentation)
         ),
+        true,
         5
       )
       repository.canRegisterFeedback(eId, sId) should be(true)
@@ -84,6 +88,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
           Some(
             Session(eId, sId, now().minusMinutes(30), now().plusMinutes(6), Presentation)
         ),
+        true,
         5
       )
       repository.canRegisterFeedback(eId, sId) should be(false)
@@ -95,6 +100,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
           Some(
             Session(eId, sId, now().minusMinutes(30), now().plusHours(24), Presentation)
         ),
+        true,
         5
       )
       repository.canRegisterFeedback(eId, sId) should be(false)
@@ -112,6 +118,25 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
               sessionType = Workshop
             )
         ),
+        true,
+        5
+      )
+      repository.canRegisterFeedback(eId, sId) should be(false)
+    }
+
+    it("should not enfore session ended") {
+      val repository: CachingSessionService = new CachingSessionService(
+        (eventId: EventId, session: SessionId) =>
+          Some(
+            Session(
+              eventId = eId,
+              sessionId = sId,
+              startTime = now().minusDays(1).minusMinutes(30),
+              endTime = now().minusDays(1).plusHours(2),
+              sessionType = Workshop
+            )
+        ),
+        false,
         5
       )
       repository.canRegisterFeedback(eId, sId) should be(false)
@@ -129,6 +154,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
               sessionType = Workshop
             )
         ),
+        true,
         5
       )
       repository.canRegisterFeedback(eId, sId) should be(true)
@@ -146,6 +172,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
               sessionType = Workshop
             )
         ),
+        true,
         5
       )
       repository.canRegisterFeedback(eId, sId) should be(true)

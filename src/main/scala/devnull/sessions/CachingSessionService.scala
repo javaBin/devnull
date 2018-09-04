@@ -7,7 +7,11 @@ import devnull.cache.CaffeineExtensions
 
 import scala.concurrent.duration._
 
-class CachingSessionService(sessionClient: SessionClient, bufferTime: Int = 10)(
+class CachingSessionService(
+    sessionClient: SessionClient,
+    sessionEndedCheck: Boolean,
+    bufferTime: Int = 10
+)(
     implicit clock: Clock
 ) extends SessionService
     with CaffeineExtensions {
@@ -34,9 +38,13 @@ class CachingSessionService(sessionClient: SessionClient, bufferTime: Int = 10)(
           case Workshop =>
             val sessionDate = session.startTime.toLocalDate
             val today       = UtcLocalDateTime.today()
-            sessionDate.equals(today) || sessionDate.isAfter(today)
+            if (sessionEndedCheck)
+              sessionDate.equals(today) || sessionDate.isAfter(today)
+            else true
           case _ =>
-            UtcLocalDateTime.now().isAfter(session.endTime.minusMinutes(bufferTime))
+            if (sessionEndedCheck)
+              UtcLocalDateTime.now().isAfter(session.endTime.minusMinutes(bufferTime))
+            else true
         }
 
       case None => false

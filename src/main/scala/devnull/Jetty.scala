@@ -19,6 +19,7 @@ import scalaz.concurrent.Task
 case class AppConfig(
     httpPort: Int,
     home: File,
+    sessionEndedCheck: Boolean,
     databaseConfig: DatabaseConfig,
     sleepingPillUrl: String
 )
@@ -57,7 +58,8 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val paperFeedbackRepository: PaperFeedbackRepository = new PaperFeedbackRepository()
     implicit val clock: Clock                            = Clock.systemUTC()
     val emsService: SessionService = new CachingSessionService(
-      new SleepingPillHttpSessionClient(cfg.sleepingPillUrl)
+      new SleepingPillHttpSessionClient(cfg.sleepingPillUrl),
+      cfg.sessionEndedCheck
     )
 
     val server = Server
@@ -79,9 +81,10 @@ object Jetty extends InitApp[AppConfig, AppReference] {
     val sleepingPillUrl = propOrNone("sleepingPillUrl").getOrElse(
       envOrElse("SLEEPING_PILL_URL", "https://test-sleepingpill.javazone.no")
     )
+    val sessionEndedCheck = envOrElse("SESSION_ENDED_CHECK", "true").toBoolean
 
     val dbConfig = DatabaseConfigEnv()
-    AppConfig(port, home, dbConfig, sleepingPillUrl)
+    AppConfig(port, home, sessionEndedCheck, dbConfig, sleepingPillUrl)
   }
 }
 
