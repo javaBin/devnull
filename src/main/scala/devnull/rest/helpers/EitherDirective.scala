@@ -15,14 +15,15 @@ object EitherDirective {
   type EitherDirective[T] = Directive[HttpServletRequest, ResponseFunction[Any], T]
   implicit val formats = org.json4s.DefaultFormats
 
-  def withJson[T, P : Manifest](t: P => T):EitherDirective[Either[Throwable, Option[T]]] = {
+  def withJson[T, P: Manifest](
+      t: P => T
+  ): EitherDirective[Either[Throwable, Option[T]]] = {
     inputStream.map(is => {
       implicit val formats = org.json4s.DefaultFormats
-      val parse: JValue = JsonMethods.parse(new StreamInput(is))
+      val parse: JValue    = JsonMethods.parse(new StreamInput(is))
       Right(Some(t(parse.extract[P])))
     })
   }
-
 
   def fromEither[T](either: Either[Throwable, T]): EitherDirective[T] = {
     either.fold(

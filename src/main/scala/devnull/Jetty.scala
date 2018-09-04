@@ -4,7 +4,11 @@ import java.io.File
 import java.time.Clock
 
 import com.typesafe.scalalogging.LazyLogging
-import devnull.sessions.{CachingSessionService, SessionService, SleepingPillHttpSessionClient}
+import devnull.sessions.{
+  CachingSessionService,
+  SessionService,
+  SleepingPillHttpSessionClient
+}
 import devnull.storage._
 import doobie.hikari.hikaritransactor.HikariTransactor
 import unfiltered.jetty.Server
@@ -35,21 +39,32 @@ object Jetty extends InitApp[AppConfig, AppReference] {
   override def onStart(cfg: AppConfig): AppReference = {
     val dbCfg: DatabaseConfig = cfg.databaseConfig
     val xa = for {
-      xa <- HikariTransactor[Task](dbCfg.driver, dbCfg.connectionUrl, dbCfg.username, dbCfg.password.value)
-      _ <- xa.configure(hxa =>
-        Task.delay {
-          hxa.setMaximumPoolSize(10)
-        })
+      xa <- HikariTransactor[Task](
+             dbCfg.driver,
+             dbCfg.connectionUrl,
+             dbCfg.username,
+             dbCfg.password.value
+           )
+      _ <- xa.configure(
+            hxa =>
+              Task.delay {
+                hxa.setMaximumPoolSize(10)
+            }
+          )
     } yield xa
 
-    val repository: FeedbackRepository = new FeedbackRepository()
+    val repository: FeedbackRepository                   = new FeedbackRepository()
     val paperFeedbackRepository: PaperFeedbackRepository = new PaperFeedbackRepository()
-    implicit val clock: Clock = Clock.systemUTC()
+    implicit val clock: Clock                            = Clock.systemUTC()
     val emsService: SessionService = new CachingSessionService(
-      new SleepingPillHttpSessionClient(cfg.sleepingPillUrl))
+      new SleepingPillHttpSessionClient(cfg.sleepingPillUrl)
+    )
 
-    val server = Server.http(cfg.httpPort)
-      .plan(Resources(emsService, repository, paperFeedbackRepository, xa.unsafePerformSync))
+    val server = Server
+      .http(cfg.httpPort)
+      .plan(
+        Resources(emsService, repository, paperFeedbackRepository, xa.unsafePerformSync)
+      )
       .requestLogging("access.log")
 
     server.run(_ => logger.info("Running server at " + cfg.httpPort))
@@ -61,8 +76,9 @@ object Jetty extends InitApp[AppConfig, AppReference] {
   def createConfig(): AppConfig = {
     val port = envOrElse("PORT", "8082").toInt
     val home = new File(propOrElse("app.home", envOrElse("app.home", ".")))
-    val sleepingPillUrl = propOrNone("sleepingPillUrl")
-        .getOrElse(envOrElse("SLEEPING_PILL_URL", "https://test-sleepingpill.javazone.no"))
+    val sleepingPillUrl = propOrNone("sleepingPillUrl").getOrElse(
+      envOrElse("SLEEPING_PILL_URL", "https://test-sleepingpill.javazone.no")
+    )
 
     val dbConfig = DatabaseConfigEnv()
     AppConfig(port, home, dbConfig, sleepingPillUrl)

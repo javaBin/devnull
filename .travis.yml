@@ -1,13 +1,13 @@
 sudo: false
 language: scala
 scala:
-  - 2.11.7
+  - 2.12.6
 addons:
   postgresql: "9.3"
 before_script:
   - psql -c 'create database devnull;' -U postgres
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION all:test
+  - sbt all:test
 env:
   global:
     - secure: bO9FsRx8i24feLmVFUd4CAYd423edm/qfOtf/LacuOdzCdbfGLVoCPcQP1GVoRCCIz0xUPkwwlRbLY2FbRXIuFE+EtwFqVqoTExmw98aSuOnkhqRQ3OTpc5qyKEhPJPDvw7A39WyoXermol5RBRseSPsbYkUPBdh4wqnwsYJH3g=

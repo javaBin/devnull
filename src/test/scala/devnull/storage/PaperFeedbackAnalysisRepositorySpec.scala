@@ -8,10 +8,19 @@ import doobie.imports._
 import doobie.scalatest._
 import org.scalatest.{FunSpec, Matchers}
 
-class PaperFeedbackAnalysisRepositorySpec extends FunSpec  with Matchers with DatabaseMigration with IOLiteChecker {
+class PaperFeedbackAnalysisRepositorySpec
+    extends FunSpec
+    with Matchers
+    with DatabaseMigration
+    with IOLiteChecker {
 
   val cfg = DatabaseConfigEnv()
-  implicit val xa = DriverManagerTransactor[IOLite](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password.value)
+  implicit val xa = DriverManagerTransactor[IOLite](
+    cfg.driver,
+    cfg.connectionUrl,
+    cfg.username,
+    cfg.password.value
+  )
   val repo: PaperFeedbackRepository = new PaperFeedbackRepository()
 
   describe("paper feedback") {
@@ -21,7 +30,8 @@ class PaperFeedbackAnalysisRepositorySpec extends FunSpec  with Matchers with Da
     }
 
     it("query for event must match types in the database", DatabaseTag) {
-      val query: Query0[(PaperRatingResult, Option[Double])] = repo.Queries.selectAvgFeedbackForEvent(UUID.randomUUID())
+      val query: Query0[(PaperRatingResult, Option[Double])] =
+        repo.Queries.selectAvgFeedbackForEvent(UUID.randomUUID())
       check(query)
     }
 

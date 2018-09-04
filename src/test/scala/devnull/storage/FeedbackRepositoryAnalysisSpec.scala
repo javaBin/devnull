@@ -8,10 +8,19 @@ import doobie.imports._
 import doobie.scalatest.imports._
 import org.scalatest.{FunSpec, Matchers}
 
-class FeedbackRepositoryAnalysisSpec extends FunSpec with Matchers with DatabaseMigration with IOLiteChecker {
+class FeedbackRepositoryAnalysisSpec
+    extends FunSpec
+    with Matchers
+    with DatabaseMigration
+    with IOLiteChecker {
 
   val cfg = DatabaseConfigEnv()
-  implicit val xa = DriverManagerTransactor[IOLite](cfg.driver, cfg.connectionUrl, cfg.username, cfg.password.value)
+  implicit val xa = DriverManagerTransactor[IOLite](
+    cfg.driver,
+    cfg.connectionUrl,
+    cfg.username,
+    cfg.password.value
+  )
   val repo: FeedbackRepository = new FeedbackRepository()
 
   it("feedback query must match types in the database", DatabaseTag) {
@@ -27,7 +36,8 @@ class FeedbackRepositoryAnalysisSpec extends FunSpec with Matchers with Database
   }
 
   it("feedback session query must match types in the database") {
-    val query: Query0[FeedbackResult] = repo.Queries.selectAvgForSession(UUID.randomUUID())
+    val query: Query0[FeedbackResult] =
+      repo.Queries.selectAvgForSession(UUID.randomUUID())
     check(query)
   }
 

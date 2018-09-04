@@ -17,6 +17,3 @@ class SCaffeine[K, V](val builder: Caffeine[K, V]) {
   }
 
 }
-
-
-

@@ -52,8 +52,7 @@ class FeedbackRepository {
            rating_content,
            rating_quality,
            comments
-       FROM feedback"""
-        .query[(Feedback)]
+       FROM feedback""".query[(Feedback)]
     }
 
     def selectAvgForSession(sessionId: UUID): Query0[FeedbackResult] = {
@@ -166,7 +165,9 @@ class FeedbackRepository {
     Queries.selectAllFeedbacks.list
   }
 
-  def selectFeedbackForSession(sessionId: UUID): hi.ConnectionIO[Option[FeedbackResult]] = {
+  def selectFeedbackForSession(
+      sessionId: UUID
+  ): hi.ConnectionIO[Option[FeedbackResult]] = {
     Queries.selectAvgForSession(sessionId).option
   }
 

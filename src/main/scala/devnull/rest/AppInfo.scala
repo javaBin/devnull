@@ -10,20 +10,23 @@ import unfiltered.request.GET
 import unfiltered.response.{Ok, ResponseFunction}
 
 object AppInfo {
-  type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
+  type ResponseDirective =
+    Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
   def handelAppInfo(): ResponseDirective = {
     val get = for {
       _ <- GET
     } yield {
-        Ok ~> ResponseJson(AppInfoContent(
+      Ok ~> ResponseJson(
+        AppInfoContent(
           devnull.BuildInfo.scalaVersion,
           devnull.BuildInfo.version,
           devnull.BuildInfo.buildTime,
           devnull.BuildInfo.branch,
           devnull.BuildInfo.sha
-        ))
-      }
+        )
+      )
+    }
 
     get
   }
@@ -33,6 +36,7 @@ object AppInfo {
       version: String,
       buildTime: String,
       branch: String,
-      sha: String)
+      sha: String
+  )
 
 }

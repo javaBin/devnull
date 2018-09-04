@@ -10,14 +10,15 @@ import unfiltered.response.{Ok, ResponseFunction}
 
 object PingResource {
 
-  type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
+  type ResponseDirective =
+    Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
   def handlePing(): ResponseDirective = {
     val get = for {
       _ <- GET
     } yield {
-        Ok ~> ResponseJson(Ping("pong"))
-      }
+      Ok ~> ResponseJson(Ping("pong"))
+    }
     get
   }
 

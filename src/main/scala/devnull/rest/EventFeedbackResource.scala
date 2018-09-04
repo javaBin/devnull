@@ -21,18 +21,24 @@ import unfiltered.response.{Accepted, ResponseFunction, Unauthorized}
 import scala.util.Properties._
 import scalaz.concurrent.Task
 
-class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa: Transactor[Task]) {
-  type ResponseDirective = Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
+class EventFeedbackResource(
+    paperFeedbackRepository: PaperFeedbackRepository,
+    xa: Transactor[Task]
+) {
+  type ResponseDirective =
+    Directive[HttpServletRequest, ResponseFunction[Any], ResponseFunction[Any]]
 
   def handleFeedback(eventIdStr: String): ResponseDirective = {
     for {
-      _ <- POST
-      _ <- withContentTypes(List(MIMEType.Json))
-      eventId <- fromEither(UuidFromString(eventIdStr).right.map(EventId.apply))
-      _ <- hasAdminTokenToken
+      _              <- POST
+      _              <- withContentTypes(List(MIMEType.Json))
+      eventId        <- fromEither(UuidFromString(eventIdStr).right.map(EventId.apply))
+      _              <- hasAdminTokenToken
       paperFeedbacks <- toJson[FeedbackWrapper]
     } yield {
-      val pfe = paperFeedbacks.feedbacks.map { e => ToPaperFeedback(eventId, e) }
+      val pfe = paperFeedbacks.feedbacks.map { e =>
+        ToPaperFeedback(eventId, e)
+      }
       pfe.foreach { pfb =>
         paperFeedbackRepository.insertPaperFeedback(pfb).transact(xa).unsafePerformSync
       }
@@ -40,16 +46,17 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
     }
   }
 
-  def toJson[T : Manifest]:EitherDirective[T] = {
+  def toJson[T: Manifest]: EitherDirective[T] = {
     inputStream.map(is => {
       implicit val formats = org.json4s.DefaultFormats
-      val parse: JValue = JsonMethods.parse(StreamInput(is))
+      val parse: JValue    = JsonMethods.parse(StreamInput(is))
       parse.extract[T]
     })
   }
 
   def hasAdminTokenToken = commit {
-    val secret: Option[String] = propOrNone("admin-secret").orElse(envOrNone("ADMIN_SECRET"))
+    val secret: Option[String] =
+      propOrNone("admin-secret").orElse(envOrNone("ADMIN_SECRET"))
     when { case Token(token) if secret.contains(token) => () }.orElse(Unauthorized)
   }
 
@@ -57,7 +64,13 @@ class EventFeedbackResource(paperFeedbackRepository: PaperFeedbackRepository, xa
 
 }
 
-case class PaperFeedbackEntry(sessionId: String, green: Int, yellow: Int, red: Int, participants: Int)
+case class PaperFeedbackEntry(
+    sessionId: String,
+    green: Int,
+    yellow: Int,
+    red: Int,
+    participants: Int
+)
 case class FeedbackWrapper(feedbacks: List[PaperFeedbackEntry])
 case class FeedbackResponse(numInserted: Int)
 
@@ -69,6 +82,7 @@ object ToPaperFeedback {
       eventId.id,
       UUID.fromString(entry.sessionId),
       PaperRating(entry.green, entry.yellow, entry.red),
-      entry.participants)
+      entry.participants
+    )
   }
 }
