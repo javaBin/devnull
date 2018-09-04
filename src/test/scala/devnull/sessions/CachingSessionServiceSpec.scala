@@ -124,7 +124,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
       repository.canRegisterFeedback(eId, sId) should be(false)
     }
 
-    it("should not enfore session ended") {
+    it("should not enforce session ended") {
       val repository: CachingSessionService = new CachingSessionService(
         (eventId: EventId, session: SessionId) =>
           Some(
@@ -139,7 +139,7 @@ class CachingSessionServiceSpec extends FunSpec with Matchers {
         false,
         5
       )
-      repository.canRegisterFeedback(eId, sId) should be(false)
+      repository.canRegisterFeedback(eId, sId) should be(true)
     }
 
     it("should open workshop on workshop day") {
