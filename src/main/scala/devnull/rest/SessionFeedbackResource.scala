@@ -112,7 +112,7 @@ class SessionFeedbackResource(
       }
       Ok ~> ResponseJson(response.unsafePerformSync)
     }
-    postFeedback | getFeedback
+    postFeedback // | getFeedback
   }
 
   def parseFeedback(
